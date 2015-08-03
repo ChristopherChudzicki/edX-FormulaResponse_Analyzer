@@ -1,7 +1,7 @@
 # FormulaResponse_Analyzer.py
 Group symbolic submissions by numerical equivalence.
 
-![alt text]( "Logo Title Text 1")
+![output of FormulaResponse_Analyzer for one problem](https://github.com/ChristopherChudzicki/edX-FormulaResponse_Analyzer/blob/master/problem_output_screenshot.png "Problem Output")
 
 
 ## Background
