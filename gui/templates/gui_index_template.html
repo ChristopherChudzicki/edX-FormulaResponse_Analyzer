@@ -1,0 +1,68 @@
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="resources/tablesorter_blue/tablesorter_blue.css"/>
+		<link rel="stylesheet" type="text/css" href="resources/gui.css"/>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+		<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+		<script type="text/javascript" src="resources/tablesorter.js"></script>
+		<script>
+		$(document).ready(function() 
+		    { 
+		        $("#indexTable").tablesorter(); 
+		    } 
+		);
+		</script>
+	</head>
+	<body>
+		
+		<div class="intro">
+			<p>For each symbolic ("formularesponse") problem in the course, submissions are grouped by numerical smapling (i.e., roughly by mathematical equivalence.)</p>
+		
+			<ul>
+				<li>
+					<p>Feedback Score (range: 0.0--1.0): Attempts to quantify how much a problem would benefit from wrong-answer feedback. A high score indicates that most wrong answers are of a few common types, so providing wrong-answer feedback is tractable.</p>
+				</li>
+				<li>
+					<p>\(n_{\text{correct}}\) (should be 1.0): The number of submission groups in whcih all submissions were graded as correct by edX. If \(n_{\text{correct}} \geq 2\), then multiple inequivalent answers are being graded correct by edX. This could indicate that the formularesponse grader is not strict enough.</p>
+				</li>
+				<li>
+					\(n_{\text{partial}}\) (should be 0.0): the number of submission groups in which <em>some but not all</em> submissions were graded as correct by edX. This could indicate a few things:
+					<ul>
+						<li>The formularesponse grader was changed during the course run.</li>
+						<li>The formularesponse answer is randomized.</li>
+						<li>The formularesponse grader has is using bad samples. (EdX uses different random samples for each submission, so if sample range is bad the same submission may be graded different during each problem check.) </li>
+					</ul>
+				</li>
+			</ul>
+			
+		<p>
+			<em>TIP!</em> Sort multiple columns simultaneously by holding down the shift key and clicking a second, third, or fourth column header.
+		</p>
+		</div>
+		
+		
+		
+		<table id="indexTable" class="tablesorter">
+			<thead>
+				<tr>
+					<th>problem name</th>
+					<th>Feedback Score</th>
+					<th>\(n_{\text{correct}}\)</th>
+					<th>\(n_{\text{partial}}\)</th>
+                    <th>submission count</th>
+                    <th>type</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+                    <td></td>
+                    <td></td>
+				</tr>
+			</tbody>
+		</table>
+	</body>
+</html>
