@@ -1,0 +1,94 @@
+time	hashed_username	problem_id	correctness	submission	attempt_number	input_type	response_type
+2015-05-13T08:28:21	user1	i4x-MITx-FakeCourse-problem-HW_1.1	TRUE	sqrt(x-y)	3	formulaequationinput	formularesponse
+2015-05-13T08:28:22	user1	i4x-MITx-FakeCourse-problem-HW_1.1	FALSE	x-y	2	formulaequationinput	formularesponse
+2015-05-13T08:28:23	user1	i4x-MITx-FakeCourse-problem-HW_1.1	FALSE	sqrt(y-x)	1	formulaequationinput	formularesponse
+2015-05-13T08:28:24	user10	i4x-MITx-FakeCourse-problem-HW_1.1	TRUE	sqrt(x-y)	2	formulaequationinput	formularesponse
+2015-05-13T08:28:25	user10	i4x-MITx-FakeCourse-problem-HW_1.1	FALSE	(y-x)^0.5	1	formulaequationinput	formularesponse
+2015-05-13T08:28:26	user11	i4x-MITx-FakeCourse-problem-HW_1.1	TRUE	(x-y)^(1/2)	2	formulaequationinput	formularesponse
+2015-05-13T08:28:27	user11	i4x-MITx-FakeCourse-problem-HW_1.1	FALSE	sqrt(y-x)	1	formulaequationinput	formularesponse
+2015-05-13T08:28:28	user12	i4x-MITx-FakeCourse-problem-HW_1.1	TRUE	(x-y)^(1/2)	1	formulaequationinput	formularesponse
+2015-05-13T08:28:29	user12	i4x-MITx-FakeCourse-problem-HW_1.1	TRUE	(x-y)^(1/2)	2	formulaequationinput	formularesponse
+2015-05-13T08:28:30	user12	i4x-MITx-FakeCourse-problem-HW_1.1	TRUE	(-y+x)^0.5	3	formulaequationinput	formularesponse
+2015-05-13T08:28:31	user12	i4x-MITx-FakeCourse-problem-HW_1.1	FALSE	(y-x)^0.5	4	formulaequationinput	formularesponse
+2015-05-13T08:28:32	user13	i4x-MITx-FakeCourse-problem-HW_1.1	FALSE	2*x	1	formulaequationinput	formularesponse
+2015-05-13T08:28:33	user14	i4x-MITx-FakeCourse-problem-HW_1.1	FALSE	2*y	1	formulaequationinput	formularesponse
+2015-05-13T08:28:34	user15	i4x-MITx-FakeCourse-problem-HW_1.1	FALSE	0.5*(x+y)	1	formulaequationinput	formularesponse
+2015-05-13T08:28:35	user16	i4x-MITx-FakeCourse-problem-HW_1.1	FALSE	0.5*(x+y)	1	formulaequationinput	formularesponse
+2015-05-13T08:28:36	user17	i4x-MITx-FakeCourse-problem-HW_1.1	FALSE	0.5*(x+y)	1	formulaequationinput	formularesponse
+2015-05-13T08:28:37	user2	i4x-MITx-FakeCourse-problem-HW_1.1	TRUE	sqrt(x-y)	3	formulaequationinput	formularesponse
+2015-05-13T08:28:38	user2	i4x-MITx-FakeCourse-problem-HW_1.1	FALSE	x-y	1	formulaequationinput	formularesponse
+2015-05-13T08:28:39	user2	i4x-MITx-FakeCourse-problem-HW_1.1	FALSE	sqrt(y-x)	2	formulaequationinput	formularesponse
+2015-05-13T08:28:40	user3	i4x-MITx-FakeCourse-problem-HW_1.1	TRUE	sqrt(x-y)	3	formulaequationinput	formularesponse
+2015-05-13T08:28:41	user3	i4x-MITx-FakeCourse-problem-HW_1.1	FALSE	x-y	1	formulaequationinput	formularesponse
+2015-05-13T08:28:42	user3	i4x-MITx-FakeCourse-problem-HW_1.1	FALSE	sqrt(y-x)	2	formulaequationinput	formularesponse
+2015-05-13T08:28:43	user4	i4x-MITx-FakeCourse-problem-HW_1.1	TRUE	sqrt(x-y)	3	formulaequationinput	formularesponse
+2015-05-13T08:28:44	user4	i4x-MITx-FakeCourse-problem-HW_1.1	FALSE	-y+x	1	formulaequationinput	formularesponse
+2015-05-13T08:28:45	user4	i4x-MITx-FakeCourse-problem-HW_1.1	FALSE	sqrt(y-x)	2	formulaequationinput	formularesponse
+2015-05-13T08:28:46	user5	i4x-MITx-FakeCourse-problem-HW_1.1	TRUE	sqrt(x-y)	3	formulaequationinput	formularesponse
+2015-05-13T08:28:47	user5	i4x-MITx-FakeCourse-problem-HW_1.1	FALSE	-y+x	1	formulaequationinput	formularesponse
+2015-05-13T08:28:48	user5	i4x-MITx-FakeCourse-problem-HW_1.1	FALSE	sqrt(y-x)	2	formulaequationinput	formularesponse
+2015-05-13T08:28:49	user6	i4x-MITx-FakeCourse-problem-HW_1.1	TRUE	(x-y)^0.5	2	formulaequationinput	formularesponse
+2015-05-13T08:28:50	user6	i4x-MITx-FakeCourse-problem-HW_1.1	FALSE	sqrt(y-x)	1	formulaequationinput	formularesponse
+2015-05-13T08:28:51	user7	i4x-MITx-FakeCourse-problem-HW_1.1	TRUE	(x-y)^0.5	2	formulaequationinput	formularesponse
+2015-05-13T08:28:52	user7	i4x-MITx-FakeCourse-problem-HW_1.1	FALSE	(y-x)^0.5	1	formulaequationinput	formularesponse
+2015-05-13T08:28:53	user8	i4x-MITx-FakeCourse-problem-HW_1.1	TRUE	(x-y)^0.5	2	formulaequationinput	formularesponse
+2015-05-13T08:28:54	user8	i4x-MITx-FakeCourse-problem-HW_1.1	FALSE	(y-x)^0.5	1	formulaequationinput	formularesponse
+2015-05-13T08:28:55	user9	i4x-MITx-FakeCourse-problem-HW_1.1	TRUE	(x-y)^0.5	2	formulaequationinput	formularesponse
+2015-05-13T08:28:56	user9	i4x-MITx-FakeCourse-problem-HW_1.1	FALSE	(y-x)^0.5	1	formulaequationinput	formularesponse
+2015-05-13T08:28:57	user1	i4x-MITx-FakeCourse-problem-HW_1.2	TRUE	Figure A	1	choicegroup	multiplechoiceresponse
+2015-05-13T08:28:58	user2	i4x-MITx-FakeCourse-problem-HW_1.2	TRUE	Figure A	1	choicegroup	multiplechoiceresponse
+2015-05-13T08:28:59	user3	i4x-MITx-FakeCourse-problem-HW_1.2	FALSE	Figure B	1	choicegroup	multiplechoiceresponse
+2015-05-13T08:28:60	user4	i4x-MITx-FakeCourse-problem-HW_1.2	TRUE	FigureA	1	choicegroup	multiplechoiceresponse
+2015-05-13T08:28:61	user5	i4x-MITx-FakeCourse-problem-HW_1.2	FALSE	Figure B	1	choicegroup	multiplechoiceresponse
+2015-05-13T08:28:62	user6	i4x-MITx-FakeCourse-problem-HW_1.2	FALSE	Figure C	1	choicegroup	multiplechoiceresponse
+2015-05-13T08:28:63	user7	i4x-MITx-FakeCourse-problem-HW_1.2	FALSE	Figure B	1	choicegroup	multiplechoiceresponse
+2015-05-13T08:28:64	user8	i4x-MITx-FakeCourse-problem-HW_1.2	TRUE	Figure A	1	choicegroup	multiplechoiceresponse
+2015-05-13T08:28:65	user9	i4x-MITx-FakeCourse-problem-HW_1.2	TRUE	Figure A	1	choicegroup	multiplechoiceresponse
+2015-05-13T08:28:66	user10	i4x-MITx-FakeCourse-problem-HW_1.2	FALSE	Figure C	1	choicegroup	multiplechoiceresponse
+2015-05-13T08:28:67	user11	i4x-MITx-FakeCourse-problem-HW_1.2	FALSE	Figure D	1	choicegroup	multiplechoiceresponse
+2015-05-13T08:28:68	user12	i4x-MITx-FakeCourse-problem-HW_1.2	TRUE	Figure A	1	choicegroup	multiplechoiceresponse
+2015-05-13T08:28:69	user1	i4x-MITx-FakeCourse-problem-HW_1.3	TRUE	sin(a*b)	3	textline	formularesponse
+2015-05-13T08:28:70	user1	i4x-MITx-FakeCourse-problem-HW_1.3	FALSE	sin(a/b)	2	textline	formularesponse
+2015-05-13T08:28:71	user1	i4x-MITx-FakeCourse-problem-HW_1.3	FALSE	tan(a*b)	1	textline	formularesponse
+2015-05-13T08:28:72	user10	i4x-MITx-FakeCourse-problem-HW_1.3	TRUE	sin(a*b)	2	textline	formularesponse
+2015-05-13T08:28:73	user10	i4x-MITx-FakeCourse-problem-HW_1.3	FALSE	cos(a*b)	1	textline	formularesponse
+2015-05-13T08:28:74	user11	i4x-MITx-FakeCourse-problem-HW_1.3	TRUE	sin(a*b)	2	textline	formularesponse
+2015-05-13T08:28:75	user11	i4x-MITx-FakeCourse-problem-HW_1.3	FALSE	cos(a*b)	1	textline	formularesponse
+2015-05-13T08:28:76	user12	i4x-MITx-FakeCourse-problem-HW_1.3	TRUE	sin(a*b)	2	textline	formularesponse
+2015-05-13T08:28:77	user12	i4x-MITx-FakeCourse-problem-HW_1.3	FALSE	cos(a*b)	1	textline	formularesponse
+2015-05-13T08:28:78	user13	i4x-MITx-FakeCourse-problem-HW_1.3	TRUE	sin(b*a)	2	textline	formularesponse
+2015-05-13T08:28:79	user13	i4x-MITx-FakeCourse-problem-HW_1.3	FALSE	cos(a*b)	1	textline	formularesponse
+2015-05-13T08:28:80	user14	i4x-MITx-FakeCourse-problem-HW_1.3	TRUE	sin(b*a)	2	textline	formularesponse
+2015-05-13T08:28:81	user14	i4x-MITx-FakeCourse-problem-HW_1.3	FALSE	cos(a*b)	1	textline	formularesponse
+2015-05-13T08:28:82	user15	i4x-MITx-FakeCourse-problem-HW_1.3	TRUE	sin(b*a)	1	textline	formularesponse
+2015-05-13T08:28:83	user16	i4x-MITx-FakeCourse-problem-HW_1.3	TRUE	sin(b*a)	1	textline	formularesponse
+2015-05-13T08:28:84	user17	i4x-MITx-FakeCourse-problem-HW_1.3	TRUE	sin(b*a)	1	textline	formularesponse
+2015-05-13T08:28:85	user18	i4x-MITx-FakeCourse-problem-HW_1.3	TRUE	cos(a*b-pi/2)	2	textline	formularesponse
+2015-05-13T08:28:86	user18	i4x-MITx-FakeCourse-problem-HW_1.3	FALSE	sin(a*b)/tan(a*b)	1	textline	formularesponse
+2015-05-13T08:28:87	user19	i4x-MITx-FakeCourse-problem-HW_1.3	TRUE	cos(a*b-pi/2)	2	textline	formularesponse
+2015-05-13T08:28:88	user19	i4x-MITx-FakeCourse-problem-HW_1.3	FALSE	sin(a*b)/tan(a*b)	1	textline	formularesponse
+2015-05-13T08:28:89	user2	i4x-MITx-FakeCourse-problem-HW_1.3	TRUE	sin(a*b)	3	textline	formularesponse
+2015-05-13T08:28:90	user2	i4x-MITx-FakeCourse-problem-HW_1.3	FALSE	sin(a/b)	2	textline	formularesponse
+2015-05-13T08:28:91	user2	i4x-MITx-FakeCourse-problem-HW_1.3	FALSE	tan(a*b)	1	textline	formularesponse
+2015-05-13T08:28:92	user20	i4x-MITx-FakeCourse-problem-HW_1.3	TRUE	cos(a*b-pi/2)	2	textline	formularesponse
+2015-05-13T08:28:93	user20	i4x-MITx-FakeCourse-problem-HW_1.3	FALSE	sin(a*b)/tan(a*b)	1	textline	formularesponse
+2015-05-13T08:28:94	user21	i4x-MITx-FakeCourse-problem-HW_1.3	TRUE	cos(a*b-pi/2)	2	textline	formularesponse
+2015-05-13T08:28:95	user21	i4x-MITx-FakeCourse-problem-HW_1.3	FALSE	a*b	1	textline	formularesponse
+2015-05-13T08:28:96	user22	i4x-MITx-FakeCourse-problem-HW_1.3	FALSE	b*a	1	textline	formularesponse
+2015-05-13T08:28:97	user3	i4x-MITx-FakeCourse-problem-HW_1.3	TRUE	sin(a*b)	3	textline	formularesponse
+2015-05-13T08:28:98	user3	i4x-MITx-FakeCourse-problem-HW_1.3	FALSE	sin(a/b)	2	textline	formularesponse
+2015-05-13T08:28:99	user3	i4x-MITx-FakeCourse-problem-HW_1.3	FALSE	tan(a*b)	1	textline	formularesponse
+2015-05-13T08:28:100	user4	i4x-MITx-FakeCourse-problem-HW_1.3	TRUE	sin(a*b)	3	textline	formularesponse
+2015-05-13T08:28:101	user4	i4x-MITx-FakeCourse-problem-HW_1.3	FALSE	sin(a/b)	2	textline	formularesponse
+2015-05-13T08:28:102	user4	i4x-MITx-FakeCourse-problem-HW_1.3	FALSE	sin(a*b)/cos(a*b)	1	textline	formularesponse
+2015-05-13T08:28:103	user5	i4x-MITx-FakeCourse-problem-HW_1.3	FALSE	tan(a/b)*cos(a/b)	2	textline	formularesponse
+2015-05-13T08:28:104	user5	i4x-MITx-FakeCourse-problem-HW_1.3	FALSE	sin(a*b)/cos(a*b)	1	textline	formularesponse
+2015-05-13T08:28:105	user6	i4x-MITx-FakeCourse-problem-HW_1.3	FALSE	tan(a/b)*cos(a/b)	1	textline	formularesponse
+2015-05-13T08:28:106	user7	i4x-MITx-FakeCourse-problem-HW_1.3	FALSE	tan(a/b)*cos(a/b)	1	textline	formularesponse
+2015-05-13T08:28:107	user8	i4x-MITx-FakeCourse-problem-HW_1.3	FALSE	sin(a*b)/cos(a*b)	1	textline	formularesponse
+2015-05-13T08:28:108	user9	i4x-MITx-FakeCourse-problem-HW_1.3	FALSE	sin(a*b)/cos(a*b)	1	textline	formularesponse
+2015-05-13T08:28:109	user9	i4x-MITx-FakeCourse-problem-HW_1.3	FALSE	sin(a*b)/cos(a*b)	2	textline	formularesponse
+2015-05-13T08:28:110	user9	i4x-MITx-FakeCourse-problem-HW_1.3	FALSE	sin(a*b)/cos(a*b)	3	textline	formularesponse
+2015-05-13T08:28:111	user9	i4x-MITx-FakeCourse-problem-HW_1.3	FALSE	sin(a*b)/cos(a*b)	4	textline	formularesponse
+2015-05-13T08:28:112	user9	i4x-MITx-FakeCourse-problem-HW_1.3	FALSE	sin(a*b)/cos(a*b)	5	textline	formularesponse
+2015-05-13T08:28:113	user9	i4x-MITx-FakeCourse-problem-HW_1.3	FALSE	sin(a*b)/cos(a*b)	6	textline	formularesponse
