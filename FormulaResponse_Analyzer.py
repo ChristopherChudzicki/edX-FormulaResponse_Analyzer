@@ -1,3 +1,4 @@
+# Version 0.5
 ##################################################
 #       Load Stuff
 ##################################################  
@@ -46,45 +47,45 @@ def ensure_dir(path):
     if not os.path.exists(d):
         os.makedirs(d)
 
-
-def split_csv_by_problem_id(input_csv_path,problem_id_front,sep='\t',acceptable_input_types=['textline','formulaequationinput']):
+def split_csv_by_problem_id(input_csv_path,problem_id_front,sep='\t',acceptable_response_types=['formularesponse']):
     '''
-    (csv)->many csv
+    (single csv)->many csv
     `input_csv` should contain problem_check table for every problem in the course. This splits the csv into many new csv, one per problem.
     
     input_csv:
-    time,   hashed_hashed_username,    problem_id,     correctness,    submission,     attempt_number,     input_type
+    time,   hashed_username,    problem_id,     correctness,    submission,     attempt_number,     input_type,     response_type
     
-    output_csv:
-    time,   hashed_hashed_username,   submission,     correctness,    attempt_number,     input_type
+    output_csv: (one per unique problem_id)
+    time,   hashed_username,   submission,     correctness,    attempt_number,     input_type,  response_type
     
     csv are tab-separated by default
     
     '''
     df = pandas.DataFrame.from_csv(input_csv_path,index_col=False,sep=sep)
+    print(df.head(10))
     grouped = df.groupby("problem_id")
     for group_name, group_df in grouped:
         problem_name = group_name.replace(problem_id_front,"")
         output_csv_path = "problem_check/" + problem_name + ".csv"
-        input_type = group_df['input_type'].iloc[0]
-        if input_type in acceptable_input_types:
+        response_type = group_df['response_type'].iloc[0]
+        if response_type in acceptable_response_types:
             ensure_dir(output_csv_path)
             group_df.to_csv(output_csv_path,sep="\t")
         else:
-            print("Skipping problem" + problem_name + ", it's input type is " + input_type)
+            print("Skipping problem" + problem_name + ", it's response_type is " + response_type)
     return
 
 def make_eval_csv(input_csv_path,output_csv_path=None,n_evals=2,skip_duplicates=True,case_sensitive=False):
     '''
     (csv) -> csv
-    input_csv_path: a csv from problem_check, something like 'problem.csv'
-    Output is written to output_csv_path, which by default is /input_csv_filename_evaluated.csv
+    input_csv_path: problem_check/<problem_id>.csv
+    output_csv_path: if not specified, problem_evaluated/<problem_id>_evaluated.csv
     
     Input csv should at least have columns:
-    hashed_hashed_username,   submission,     correctness,
-    str         string        str             boolean      
+    hashed_username,   submission,     correctness,  response_type
+    str                str             boolean       str    
     
-    Output plus additional columns:
+    Output has same columns, plus additional columns:
     eval.0,     eval.1,   ...       eval.(n_eval-1)
     float       float               float
     
@@ -123,7 +124,6 @@ def make_eval_csv(input_csv_path,output_csv_path=None,n_evals=2,skip_duplicates=
         '''
         Detects variables used in submission and updates vars_dict_list accordingly.
         '''
-        max_var_length = 5 #Helps weed out questions like "choice_3", etc.
         try:
             #Extract new variables from submission
             submission = calc.ParseAugmenter(submission)
@@ -182,8 +182,9 @@ def make_eval_csv(input_csv_path,output_csv_path=None,n_evals=2,skip_duplicates=
     
     return
 
-def sig_round(z,n_sig=3):
+def sig_round(z,n_sig=3,chop_past=12):
     z_copy = numpy.copy(z)
+    z_copy = numpy.round(z_copy,decimals=chop_past)
     def round_part(x):
         x.flags.writeable=True
         power = 10.0**(-numpy.floor(numpy.log10(abs(x[numpy.flatnonzero(x)]))) + n_sig - 1)
@@ -193,12 +194,13 @@ def sig_round(z,n_sig=3):
 
 def make_summary_csv(input_csv_path,output_csv_path=None,n_sig=2):
     '''
-    input_csv_path: a csv from make_eval_csv, probably something like "problem_evaluated.csv"
+    input_csv_path: a csv from make_eval_csv, probably something like "problem_evaluated/<problem_id>_evaluated.csv"
+    output_csv_path: if not specified, "problem_summary/<problem_id>_evaluated_summary.csv"
     INPUT csv should at least have columns:
-    submission,  correctness,  eval.0,  ...,  eval.(n_eval-1)
-    string       0/1           float         float
+    submission,  correctness,  eval.0,  ...,  eval.(n_eval-1), response_type
+    string       0/1           float         float              string
     
-    OUTPUT csv has statistics these columns, plus statistics of two types: 
+    OUTPUT csv has statistics on these columns, plus response_type and statistics of two types: 
         eval: aggregated over submissions with numerically equivalent evaluations (to n_sig sig figs)
         subm: aggregated over submissions with identical submission strings
     subm_correctness: of identical submissions, what fraction were marked correct? [should be 0 or 1, might not be because of edX grader random samples]
@@ -249,8 +251,8 @@ def make_summary_csv(input_csv_path,output_csv_path=None,n_sig=2):
     summary['eval_frequency'] = summary['eval_count']/total
     #submission group frequencies: percent of numerically equivalent submssions that are same string
     summary['subm_frequency']  = summary['subm_count']/summary['eval_count']
-
-        
+    
+    summary['response_type'] = df['response_type'].iloc[0]
 
     summary.sort(columns=['eval_count','subm_count'],inplace=True,ascending=False)
 
@@ -274,7 +276,7 @@ import lxml.etree as ET
 import copy
 def make_gui_problem_table(input_csv_path,output_html_path=None):
     '''
-    input_csv_path: a csv from make_summary_csv, probably something like "problem_evaluated_summary.csv"
+    input_csv_path: a csv from make_summary_csv, probably something like "problem_summary/<problem_id>_evaluated_summary.csv"
     '''
     #########################
     #Import CSV
@@ -340,17 +342,6 @@ def make_gui_problem_table(input_csv_path,output_html_path=None):
         ET.ElementTree(root).write(f,pretty_print=True,method="html")
     
     return
-    
-def numeric_or_symbolic(summary_df):
-    summary_df['eval.0'] = summary_df.index
-    eval_cols = [val for val in summary_df.columns.values if val.startswith('eval.')]
-    summary_df['same_evals'] = True
-    for eval_col in eval_cols:
-        summary_df['same_evals'] = summary_df['same_evals']&(summary_df['eval.0']==summary_df[eval_col]) 
-    if numpy.mean(summary_df['same_evals'])==1.0:
-        return "numeric"
-    else:
-        return "symbolic"
 
 def feedback_score(summary_df):
     '''
@@ -410,7 +401,7 @@ def make_gui_index(problem_summary_dir = "problem_summary/",min_submissions=50):
         problem_summary_html_path = 'problem/'+problem_name+'_evaluated_summary.html'
         summary_df = pandas.DataFrame.from_csv(problem_summary_csv_path,sep="\t")
         if sum(summary_df['subm_count']) < min_submissions:
-            print("Not including " + problem_name + "in index, fewer than " + str(min_submissions) )
+            print("Not including " + problem_name + "in index, fewer than " + str(min_submissions) + " submissions" )
             continue
         #Make problem table
         make_gui_problem_table(problem_summary_csv_path)
@@ -424,7 +415,7 @@ def make_gui_index(problem_summary_dir = "problem_summary/",min_submissions=50):
         td_list[2].text = num_correct
         td_list[3].text = num_partial
         td_list[4].text = str(sum(summary_df['subm_count']))
-        td_list[5].text = numeric_or_symbolic(summary_df)
+        td_list[5].text = summary_df['response_type'].iloc[0]
         #add row to index
         tbody.append(tr)
     
@@ -432,11 +423,6 @@ def make_gui_index(problem_summary_dir = "problem_summary/",min_submissions=50):
     with open(output_html_path,'w') as f:
         ET.ElementTree(root).write(f,pretty_print=True,method="html")
         
-        
-    
-
-
-
 ##################################################
 #       Loops (Not as carefully written)
 ##################################################  
@@ -491,33 +477,13 @@ def run_summary_on_eval(eval_data_folder,n_sig=2):
 ##################################################
 #       Run Stuff
 ##################################################  
-combined_csv = "mitx_805_problem_checks_augmented_sample.txt"
-problem_id_front = "i4x-MITx-8_05x-problem-"
-split_csv_by_problem_id(combined_csv,problem_id_front)
+problem_checks_augmented_filename = "MITx_FakeCourse_problem_checks_augmented.csv"
+problem_id_front = "i4x-MITx-FakeCourse-problem-"
+
 raw_data_folder = "problem_check"
 eval_data_Folder = "problem_evaluated"
-run_eval_on_raw(raw_data_folder,n_evals=2)
+
+split_csv_by_problem_id(problem_checks_augmented_filename,problem_id_front,acceptable_response_types=['formularesponse','numericalresponse'])
+run_eval_on_raw(raw_data_folder,n_evals=5,case_sensitive=True)
 run_summary_on_eval(eval_data_Folder)
-make_gui_index()
-
-##################################################
-#       Test Stuff
-##################################################  
-
-# combined_csv = "mitx_805_problem_checks_augmented_sample.txt"
-# problem_id_front = "i4x-MITx-8_05x-problem-"
-# split_csv_by_problem_id(combined_csv,problem_id_front)
-#
-# data_folder = "problem_check/"
-# eval_folder = "problem_evaluated/"
-# summary_folder = "problem_summary/"
-#
-# sym_1 = "lec08_04_4_1"
-# sym_data_1 = sym_1 + ".csv"
-# sym_eval_1 = sym_1 + "_evaluated.csv"
-# sym_summary_1 = sym_1 + "_evaluated_summary.csv"
-#
-# make_eval_csv(data_folder+sym_data_1,n_evals=2)
-# make_summary_csv(eval_folder+sym_eval_1)
-# make_gui_problem_table(summary_folder+sym_summary_1)
-
+make_gui_index(min_submissions=10)
