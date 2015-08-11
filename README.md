@@ -1,8 +1,35 @@
 # FormulaResponse_Analyzer.py
-Group symbolic submissions by numerical equivalence.
+Python script for analyzing submissions to edX formularesponse problems. Goals:
 
+1. For each formularesponse problem in the course, group submissions by mathematical equivalence.
+2. Provide an HTML/JS based user interface for viewing the grouped submissions.
+3. For an entire course, provide an HTML/JS interface to help course team identify problems that:
+    * would benefit from wrong-answer feedback
+    * might have grading issues (e.g., poorly set numerical sampling range)
+
+`Formularesponse_Analyzer.py` builds a problem index for the entire course and summary page for each problem. Summary page for a single problem looks like this:
 ![output of FormulaResponse_Analyzer for one problem](https://github.com/ChristopherChudzicki/edX-FormulaResponse_Analyzer/blob/master/problem_output_screenshot.png "Problem Output")
 
+##Usage
+`Formularesponse_Analyzer.py` requires as input a `csv` file that contains submission data for each problem and user in your course. The file must contain columns for `hashed_username`, `correctness`, `submission`, and `response_type`. The "problem_checks_augmented" table from MITx is sufficient:
+
+|                     |                 |                                    |             |            |                |                      |                 | 
+|---------------------|-----------------|------------------------------------|-------------|------------|----------------|----------------------|-----------------| 
+| time                | hashed_username | problem_id                         | correctness | submission | attempt_number | input_type           | response_type   | 
+| 2015-05-13T08:28:21 | user1           | i4x-MITx-FakeCourse-problem-HW_1.1 | TRUE        | sqrt(x-y)  | 3              | formulaequationinput | formularesponse | 
+| 2015-05-13T08:28:22 | user1           | i4x-MITx-FakeCourse-problem-HW_1.1 | FALSE       | x-y        | 2              | formulaequationinput | formularesponse | 
+| 2015-05-13T08:28:23 | user1           | i4x-MITx-FakeCourse-problem-HW_1.1 | FALSE       | sqrt(y-x)  | 1              | formulaequationinput | formularesponse | 
+| 2015-05-13T08:28:24 | user2           | i4x-MITx-FakeCourse-problem-HW_1.1 | TRUE        | sqrt(x-y)  | 2              | formulaequationinput | formularesponse | 
+| ...                 | ...             | ...                                | FALSE       | ...        | ...            | ...                  | ...             | 
+
+(A sample datafile is included in this repository, `MITx_FakeCourse_problem_checks_augmented.csv`)
+
+Then: 
+
+1. Place the `problem_checks_augmented.csv` in the Formularesponse_Analyzer folder.
+2. Edit "Run Stuf" portion of `FormulaResponse_Analyzer.py` as necessary. You'll probably need to specify:
+    * `problem_checks_augmented_filename`
+    * `problem_id_front` 
 
 ## Background
 It is possible within within edX to give wrong-answer feedback on formularesponse ("symbolic input") problems using the hintgroup tag. However, existing edX analytics tools (Insights and the MITx dashboard) group formularesponse submissions by string equivalence rather than mathematical equivalence (e.g., x+x and 2x are grouped separately) which makes identifying common answers somewhat difficult. 
@@ -13,22 +40,7 @@ Additionally, formularesponse problems sometimes have grading issues: the edX fo
 * wrong answers may be erroneously marked correct (e.g., x and sin(x) will be graded the same if the x samples are small)
 * correct answers may be marked wrong (e.g., in a physics problem cos(x) and sqrt(1-sin(x)) may be the same in a physics problem because x is in the first quadrant, but if grading samples are taken from all quadrants, these answers will be treated differently )
 
-## Purpose
-`FormulaReponse_Analyzer.py` is a python script intended to help instructors 
-
-* Group symbolic submissions by (approximate) mathematical equivalence for a single formularesponse problem;
-* Validate edX grading for a single formularesponse problem;
-* Provide a user interface that enables instructors to quickly identify which formularesponse problems in a given course would benefit from wrong-answer feedback and which problems may have grading issues.
-
-`FormulaReponse_Analyzer.py` also groups submissions to numeric problems, but randomized problems are not properly supported. 
-
 ## Functions in FormulaResponse_Analyzer.py
-The input to the FormulaResponse_Analyzer.py process is a single, tab-separated `csv` file containing submission information for users and problems within a course. The following columns must be included:
-
-`hashed_username, submission, correctness, problem_id`
-
-FormulaResponse_Analyzer.py does not currently use the problem XML (using problem XML may be desirable in the future, but seems technically difficult). 
-
 FormulaReponse_Analyzer.py has five steps, each implemented as a python function. Intermediate information is written to a new `csv` at the end of each step. Below are some overall comments on these functions. For details about parameters, inputs, and outputs, see the extensive code comments.
 
 1. `split_csv_by_problem_id`:

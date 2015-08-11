@@ -477,19 +477,13 @@ def run_summary_on_eval(eval_data_folder,n_sig=2):
 ##################################################
 #       Run Stuff
 ##################################################  
-combined_csv = "MITx_FakeCourse_problem_checks_augmented.txt"
+problem_checks_augmented_filename = "MITx_FakeCourse_problem_checks_augmented.csv"
 problem_id_front = "i4x-MITx-FakeCourse-problem-"
+
 raw_data_folder = "problem_check"
 eval_data_Folder = "problem_evaluated"
 
-split_csv_by_problem_id(combined_csv,problem_id_front,acceptable_response_types=['formularesponse','numericalresponse'])
-run_eval_on_raw(raw_data_folder,n_evals=2)
+split_csv_by_problem_id(problem_checks_augmented_filename,problem_id_front,acceptable_response_types=['formularesponse','numericalresponse'])
+run_eval_on_raw(raw_data_folder,n_evals=5,case_sensitive=True)
 run_summary_on_eval(eval_data_Folder)
 make_gui_index(min_submissions=10)
-
-##################################################
-#       Test Stuff
-##################################################  
-
-
-
