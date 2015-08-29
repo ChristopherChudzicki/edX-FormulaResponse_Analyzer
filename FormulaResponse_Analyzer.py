@@ -348,7 +348,10 @@ def feedback_score(summary_df):
     Make a probability distribution for the wrong answers only, then calculate its L2 norm.
     '''
     # probability distribution for a particular evaluation group to be wrong.
-    p_wrong = summary_df['eval_frequency']*(1-summary_df['eval_correctness']) / sum( summary_df['eval_frequency']*(1-summary_df['eval_correctness']) )
+    eval_cols = ['eval.0']+[val for val in summary_df.columns.values if val.startswith('eval.')]
+    summary_df['eval.0'] = summary_df.index
+    df = summary_df.drop_duplicates(subset=eval_cols)
+    p_wrong = df['eval_frequency']*(1-df['eval_correctness']) / sum( df['eval_frequency']*(1-df['eval_correctness']) )
     rms_p_wrong = numpy.sqrt( sum(p_wrong*p_wrong) )
     return "{0:.2f}".format(rms_p_wrong)
 
