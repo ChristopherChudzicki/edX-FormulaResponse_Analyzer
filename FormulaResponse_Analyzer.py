@@ -412,8 +412,15 @@ def make_gui_index(problem_summary_dir = "problem_summary/",min_submissions=50):
         #Populate row for index
         tr = copy.deepcopy(template_tr)  
         td_list = list(tr.iterfind('td'))
+        
+        #Investigating emptys
+        empty_row  = summary_df.loc[ summary_df['submission']=="empty" , ]
+        if float(empty_row['eval_correctness']) > 0:
+            print("<" + problem_name + "> has empty submissions marked correct")
+        n_empty = int(empty_row['subm_count']) 
+        
         link = ET.SubElement(td_list[0],'a',attrib={'href':problem_summary_html_path })
-        link.text = problem_name
+        link.text = problem_name + "...... " + str(n_empty) + " empty"
         td_list[1].text = feedback_score(summary_df)
         [num_correct,num_partial] = grading_score(summary_df)
         td_list[2].text = num_correct
