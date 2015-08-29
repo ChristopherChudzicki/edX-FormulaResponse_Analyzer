@@ -351,6 +351,7 @@ def feedback_score(summary_df):
     eval_cols = ['eval.0']+[val for val in summary_df.columns.values if val.startswith('eval.')]
     summary_df['eval.0'] = summary_df.index
     df = summary_df.drop_duplicates(subset=eval_cols)
+    df = df.loc[ df['submission']!="empty" , ]
     p_wrong = df['eval_frequency']*(1-df['eval_correctness']) / sum( df['eval_frequency']*(1-df['eval_correctness']) )
     rms_p_wrong = numpy.sqrt( sum(p_wrong*p_wrong) )
     return "{0:.2f}".format(rms_p_wrong)
