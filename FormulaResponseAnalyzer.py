@@ -5,7 +5,7 @@ import calc
 import random
 import numbers
 import json
-import os, time
+import os, time, warnings
 
 #Eceptions:
 from pyparsing import ParseException
@@ -37,9 +37,11 @@ calc.eval_power = my_eval_power
 
 def ensure_dir(path):
     '''Check if path's directory exists, create if necessary. From http://stackoverflow.com/questions/273192/in-python-check-if-a-directory-exists-and-create-it-if-necessary'''
-    d = os.path.dirname(path)
-    if not os.path.exists(d):
-        os.makedirs(d)
+    directory = os.path.dirname(path)
+    if not os.path.exists(directory):
+        message = "Creating directory {directory}".format(directory=directory)
+        warnings.warn(message, RuntimeWarning)
+        os.makedirs(directory)
 
 def split_csv_by_problem_id(input_csv_path, problem_id_front, sep='\t', acceptable_response_types=['formularesponse']):
     '''
