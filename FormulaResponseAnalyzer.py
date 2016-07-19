@@ -1,9 +1,7 @@
 import pandas
 import numpy
-import inspect
 import calc
 import random
-import numbers
 import json
 import os, time, warnings
 
@@ -243,7 +241,7 @@ class ProblemCheck(ProblemCheckDataFrame):
         self['submission'] = self['submission'].replace(r'\[.*\]', '', regex=True)
         #Replace empty (or all-whitespace) submissions by empty_encoding
         self['submission'] = self['submission'].replace('', self.metadata['empty_encoding'])
-    def drop_ducplicates():
+    def drop_ducplicates(self):
         """Drops duplicate submission strings by the same user and records this as metadata.
         
         For example, if:
