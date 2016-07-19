@@ -64,7 +64,7 @@ time	hashed_username	problem_id	correctness	submission	attempt_number	input_type
 2015-05-13T08:28:83	user16	i4x-MITx-FakeCourse-problem-HW_1.3	TRUE	sin(b*a)	1	textline	formularesponse
 2015-05-13T08:28:84	user17	i4x-MITx-FakeCourse-problem-HW_1.3	TRUE	sin(b*a)	1	textline	formularesponse
 2015-05-13T08:28:85	user18	i4x-MITx-FakeCourse-problem-HW_1.3	TRUE	cos(a*b-pi/2)	2	textline	formularesponse
-2015-05-13T08:28:86	user18	i4x-MITx-FakeCourse-problem-HW_1.3	FALSE	sin(a*b)/tan(a*b)	1	textline	formularesponse
+2015-05-13T08:28:86	user18	i4x-MITx-FakeCourse-problem-HW_1.3	FALSE		1	textline	formularesponse
 2015-05-13T08:28:87	user19	i4x-MITx-FakeCourse-problem-HW_1.3	TRUE	cos(a*b-pi/2)	2	textline	formularesponse
 2015-05-13T08:28:88	user19	i4x-MITx-FakeCourse-problem-HW_1.3	FALSE	sin(a*b)/tan(a*b)	1	textline	formularesponse
 2015-05-13T08:28:89	user2	i4x-MITx-FakeCourse-problem-HW_1.3	TRUE	sin(a*b)	3	textline	formularesponse
@@ -92,3 +92,10 @@ time	hashed_username	problem_id	correctness	submission	attempt_number	input_type
 2015-05-13T08:28:111	user9	i4x-MITx-FakeCourse-problem-HW_1.3	FALSE	sin(a*b)/cos(a*b)	4	textline	formularesponse
 2015-05-13T08:28:112	user9	i4x-MITx-FakeCourse-problem-HW_1.3	FALSE	sin(a*b)/cos(a*b)	5	textline	formularesponse
 2015-05-13T08:28:113	user9	i4x-MITx-FakeCourse-problem-HW_1.3	FALSE	sin(a*b)/cos(a*b)	6	textline	formularesponse
+2015-05-13T08:28:114	user1	i4x-MITx-FakeCourse-problem-HW_1.4	TRUE	3.14	1	textline	formularesponse
+2015-05-13T08:28:115	user2	i4x-MITx-FakeCourse-problem-HW_1.4	FALSE	2.72	1	textline	formularesponse
+2015-05-13T08:28:116	user2	i4x-MITx-FakeCourse-problem-HW_1.4	TRUE	3.14	2	textline	formularesponse
+2015-05-13T08:28:117	user3	i4x-MITx-FakeCourse-problem-HW_1.4	FALSE	2.72	1	textline	formularesponse
+2015-05-13T08:28:118	user3	i4x-MITx-FakeCourse-problem-HW_1.4	TRUE	5	2	textline	formularesponse
+2015-05-13T08:28:119	user3	i4x-MITx-FakeCourse-problem-HW_1.4	TRUE		3	textline	formularesponse
+2015-05-13T08:28:120	user3	i4x-MITx-FakeCourse-problem-HW_1.4	TRUE	3.14	4	textline	formularesponse
