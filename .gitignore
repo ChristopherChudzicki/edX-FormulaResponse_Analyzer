@@ -1,0 +1,5 @@
+.DS_Store
+*.pyc
+problem_check/*
+problem_evaluated/*
+problem_summary/*
