@@ -83,19 +83,23 @@ def eval_and_summarize(case_sensitive=True, n_evals=5):
         summary_path = "{directory}/{filename}".format(directory=summary_dir, filename=filename)
         
         start = time.time()
-        print("\n" + "#"*100 + "\n# Working on {filename}".format(filename=filename))
+        print("\n" + "#"*100 + "\n# Working on {filename} ... {index}/{total}".format(filename=filename, total=total, index=index+1))
         try:
             problem = ProblemCheck.import_csv(raw_path)
             problem.drop_duplicates()
             problem.evaluate(n_evals=n_evals)
             problem.export_csv(eval_path)
             dur = round( (time.time()-start)/60.0 , 2)
-            print("#"*10 + " "*10 + "Successfully Evaluated! Problem: {index} / {total}. Runtime: {dur}min".format(index=index, dur=dur, total=total))
+            print("#"*10 + " "*10 + "Successfully Evaluated! Runtime: {dur}min".format(dur=dur))
             start = time.time()
             summary = problem.summarize()
             summary.export_csv(summary_path)
             dur = round( (time.time()-start)/60.0 , 2)
-            print("#"*10 + " "*10 + "Successfully Summarized! Problem: {index} / {total}. Runtime: {dur}min".format(index=index, dur=dur, total=total))
+            print("#"*10 + " "*10 + "Successfully Summarized! Runtime: {dur}min".format(dur=dur))
+            start = time.time()
+            summary.make_gui()
+            dur = round( (time.time()-start)/60.0 , 2)
+            print("#"*10 + " "*10 + "Successfully Constructed GUI! Runtime: {dur}min".format(dur=dur))
         except ParseException:
             dur = round( (time.time()-start)/60.0 , 2)
             print("Could not parse submissions in file. Runetime: {dur}min".format(dur=dur))
@@ -232,6 +236,8 @@ class ProblemCheck(ProblemCheckDataFrame):
         assert 'correctness' in self.columns
         assert 'response_type' in self.columns
         self._clean()
+        self.metadata['n_submissions'] = self.shape[0]
+        self.metadata['n_empty'] = sum(self['submission']==self.metadata['empty_encoding'])
     def _clean(self):
         # If *ALL* submissions to a problem are numeric, pandas will import as numbers not strings and emptys become nan. Replace these by empty_encoding
         self['submission'].fillna(self.metadata['empty_encoding'], inplace=True)
@@ -244,7 +250,7 @@ class ProblemCheck(ProblemCheckDataFrame):
         #Replace empty (or all-whitespace) submissions by empty_encoding
         self['submission'] = self['submission'].replace('', self.metadata['empty_encoding'])
     def drop_ducplicates(self):
-        """Drops duplicate submission strings by the same user and records this as metadata.
+        """Drops duplicate submission strings by the same user, records some metadata.
         
         For example, if:
         
@@ -256,6 +262,8 @@ class ProblemCheck(ProblemCheckDataFrame):
         """
         self.drop_duplicates(subset=["hashed_username","submission"], inplace=True)
         self.metadata['drop_duplicates'] = True
+        self.metadata['n_submissions'] = self.shape[0]
+        self.metadata['n_empty'] = sum(self['submission']==self.metadata['empty_encoding'])
         return
     def _update_vars_dict_list(self, submission):
         '''
@@ -398,6 +406,8 @@ class ProblemCheck(ProblemCheckDataFrame):
         summary['response_type'] = rounded_df['response_type'].iloc[0]
         summary.sort_values(by=['eval_count','subm_count'],inplace=True,ascending=False)
         
+        # At this point, {eval.0,eval.1, ... submission} are row indices not columns. Let's restore them to columns
+        summary.reset_index(inplace=True)
         # Convert summary to a ProblemCheckSummary object
         summary = ProblemCheckSummary(summary)
         # bind metadata
@@ -411,19 +421,26 @@ class ProblemCheckSummary(ProblemCheckDataFrame):
         #Initialize super class
         super(ProblemCheckSummary, self).__init__(*args,**kwargs)
     def make_gui(self):
-        """Make a a single-problem GUI from problem summary. The GUI structure is:
+        """Make a a single-problem GUI from problem summary.
         
-            `2*a*b` ... ... group statistics            <-- SUMMARY
+        GUI is an HTML file written to /gui/problem/problem_name.csv.
+        
+        Dependent Files:
+            gui/resources/gui_problem.css
+            gui/resources/gui_problem.js
+        
+        GUI Structure is:
+        
+            `2*a*b` ... ... group statistics            <-- summary
                 `2*a*b` ... submission statistics       <-- details
                 `2*b*a` ... submission statistics       <-- details
                 `a*b*2` ... submission statistics       <-- details
                 `a*2*b` ... submission statistics       <-- details
-            `a^2`   ... ... group statistics            <-- SUMMARY
+            `a^2`   ... ... group statistics            <-- summary
                 `a^2`   ... submission statistics       <-- details
                 `a*a`   ... submission statistics       <-- details
                 `a^3/a` ... submission statistics       <-- details
             etc
-        
         """
         data_columns = [
             {
@@ -485,7 +502,7 @@ class ProblemCheckSummary(ProblemCheckDataFrame):
             return details
         
         
-        def get_group_html(group_df, data_columns):
+        def insert_group_html(gui_html, group_df, data_columns):
             # Get summary and details data frames
             summary = get_group_summary_data(group_df, data_columns)
             details = get_group_details_data(group_df, data_columns)
@@ -500,32 +517,37 @@ class ProblemCheckSummary(ProblemCheckDataFrame):
             details_tbody = ET.fromstring(details.to_html(header=False,index=False))[0]
             # Add classes
             summary_tbody.attrib['class'] = "summary"
-            details_tbody.attrib['details'] = "details"
+            details_tbody.attrib['class'] = "details"
             # Append summary and details to main table.
             table = gui_html.find('body/table')
-            return [summary_tbody, details_tbody]
+            table.extend([summary_tbody, details_tbody])
+            return
         
-        
+        def export_gui_html(gui_html):
+            output_html_path = "gui/problem/{problem}.html".format(problem=self.metadata['problem'])
+            try:
+                with open(output_html_path,'w') as f:
+                    ET.ElementTree(gui_html).write(f, pretty_print=True, method="html")
+            except IOError:
+                ensure_dir(output_html_path)
+                with open(output_html_path,'w') as f:
+                    ET.ElementTree(gui_html).write(f, pretty_print=True, method="html")
+            return
         ##################################################
         # Make the GUI
         ##################################################
-        
         gui_html = get_gui_template()
         grouped = self.groupby(by='eval_group')
         for group, df in grouped:
-            group_html = get_group_html(df, data_columns)
-            gui_html.extend(group_html)
-
-        ET.dump(gui_html)
+            insert_group_html(gui_html, df, data_columns)
         
-        with open(output_html_path,'w') as f:
-            ET.ElementTree(root).write(f,pretty_print=True,method="html")
-        pass
+        export_gui_html(gui_html)
+        return
 
 
-test_path = "problem_summary/HW_1.3.csv"
-df = ProblemCheckSummary.import_csv(test_path)
-df.make_gui()
+# test_path = "problem_summary/HW_1.3.csv"
+# df = ProblemCheckSummary.import_csv(test_path)
+# df.make_gui()
 # print(df)
 # x = df.iloc[0,:]
 # print(x.to_frame().transpose().to_html())
