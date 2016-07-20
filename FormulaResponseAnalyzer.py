@@ -4,6 +4,7 @@ import calc
 import random
 import json
 import os, time, warnings
+import lxml.etree as ET
 
 #Eceptions:
 from pyparsing import ParseException
@@ -332,6 +333,27 @@ class ProblemCheck(ProblemCheckDataFrame):
         return round_part(z_copy.real) + round_part(z_copy.imag)*1j        
     
     def summarize(self, n_sig=3):
+        """Summarize an evaluated problem check table.
+        
+        INPUT data must be evaluated first. I.e., these columns are required:
+            
+            submission,  correctness,  eval.0,  ...,  eval.(n_eval-1), response_type
+            string       0/1           float         float              string
+    
+        OUTPUT data has statistics on these columns, plus response_type.
+        
+            Output statistics come in two types:
+                
+                1. eval: aggregated over submissions with numerically equivalent evaluations (to n_sig sig figs)
+                2. subm: aggregated over submissions with identical submission strings
+            
+            subm_correctness: of identical submissions, what fraction were marked correct? [should be 0 or 1, might not be because of edX grader random samples]
+            subm_count: number of submissions with identical submission strings 
+            eval_correctness: of submissions with numerically equivalent evals, what fraction were marked correct? [should be 0 or 1, might not be because of edX grader random samples]
+            eval_count: number of submissions with equivalent evaluations
+            subm_frequency: this string's frequency among numerically equivalent submissions
+            eval_frequency: fraction of total submissions with this numerical evaluation
+        """
         eval_cols = self._get_eval_columns()
         # round eval columns to specified number of sig figs, then convert to floats so pandas.DataFrame.groupby can sort them
         rounded_df = self.copy()
@@ -356,24 +378,30 @@ class ProblemCheck(ProblemCheckDataFrame):
         #Size of everyone
         total = sum(summary['subm_count'])
         # Size of eval groups
+        def eval_group_size(eval_group):
+            return sum(summary.loc[eval_group,'subm_count'])
+        
         eval_groups = summary.groupby(level=eval_cols).groups.keys()
-        for eval_group in eval_groups:
-            summary.loc[eval_group,'eval_count']=sum(summary.loc[eval_group,'subm_count'])
+        # now sort the eval groups by size:
+        eval_groups.sort(key = eval_group_size, reverse=True)
+        
+        for index, eval_group in enumerate(eval_groups):
+            summary.loc[eval_group,'eval_group'] = index
+            summary.loc[eval_group,'eval_count']= eval_group_size(eval_group)
             # percent of submissions that **I have declared** numerically equivalent that were graded correct by edX
             summary.loc[eval_group,'eval_correctness']=numpy.mean(summary.loc[eval_group,'subm_correctness'])
         # eval group frequencies: percent of ALL submissions that evaluated numerically equiv
         summary['eval_frequency'] = summary['eval_count']/total
         # submission group frequencies: percent of numerically equivalent submssions that are same string
         summary['subm_frequency']  = summary['subm_count']/summary['eval_count']
-
         summary['response_type'] = rounded_df['response_type'].iloc[0]
-
         summary.sort_values(by=['eval_count','subm_count'],inplace=True,ascending=False)
         
         # Convert summary to a ProblemCheckSummary object
         summary = ProblemCheckSummary(summary)
-        # Fetch metadata
+        # bind metadata
         summary.metadata.update(self.metadata)
+        
         return summary
 
 class ProblemCheckSummary(ProblemCheckDataFrame):
@@ -381,13 +409,122 @@ class ProblemCheckSummary(ProblemCheckDataFrame):
     def __init__(self, *args, **kwargs):
         #Initialize super class
         super(ProblemCheckSummary, self).__init__(*args,**kwargs)
-    def make_gui():
+    def make_gui(self):
+        """Make a a single-problem GUI from problem summary. The GUI structure is:
+        
+            `2*a*b` ... ... group statistics            <-- SUMMARY
+                `2*a*b` ... submission statistics       <-- details
+                `2*b*a` ... submission statistics       <-- details
+                `a*b*2` ... submission statistics       <-- details
+                `a*2*b` ... submission statistics       <-- details
+            `a^2`   ... ... group statistics            <-- SUMMARY
+                `a^2`   ... submission statistics       <-- details
+                `a*a`   ... submission statistics       <-- details
+                `a^3/a` ... submission statistics       <-- details
+            etc
+        
+        """
+        data_columns = [
+            {
+                'gui':'Submission',     # GUI column title
+                'summary':'submission', # summary row data source
+                'details':'submission'  # details row data source
+            },
+            {
+                'gui':'Correctness',
+                'summary':'eval_correctness',
+                'details':'subm_correctness'
+            },
+            {
+                'gui':'Frequency',
+                'summary':'eval_frequency',
+                'details':'subm_frequency'
+            },
+            {
+                'gui':'Count',
+                'summary':'eval_count',
+                'details':'subm_count'
+            }
+        ]
+        ##################################################
+        # Helper Functions
+        ##################################################
+        def get_gui_template():
+            template_path = "gui/templates/gui_problem_template.html"
+            with open(template_path,'r') as f:
+                parser = ET.XMLParser(remove_blank_text=True)
+                tree = ET.parse(f,parser)
+            return tree.getroot()
+        def get_group_summary_data(group_df, data_columns):
+            summary_cols = []
+            details_cols = []
+            gui_cols = []
+            for d in data_columns:
+               summary_cols.append( d['summary'] )
+               gui_cols.append( d['gui'] )
+        
+            # Use first row of df to get summary values. This will return a Series not a DataFrame, so convert it to a DataFrame and transpose.
+            summary = group_df[summary_cols].iloc[0]
+            summary = pandas.DataFrame(summary).transpose()
+            # Rename columns
+            summary.columns = gui_cols
+        
+            return summary
+    
+        def get_group_details_data(group_df, data_columns):
+            details_cols = []
+            gui_cols = []
+            for d in data_columns:
+               details_cols.append( d['details'] )
+               gui_cols.append( d['gui'] )
+        
+            details = group_df[details_cols]
+            details.columns = gui_cols
+        
+            return details
+        
+        
+        def get_group_html(group_df, data_columns):
+            # Get summary and details data frames
+            summary = get_group_summary_data(group_df, data_columns)
+            details = get_group_details_data(group_df, data_columns)
+            # Get summary and details HTML strings. These have structure:
+            # <table>
+            #   <tbody>
+            #       DATA
+            #   </tbody>
+            # </table>
+            # We just want the tbody, so we get the [0]th child of table. 
+            summary_tbody = ET.fromstring(summary.to_html(header=False,index=False))[0]
+            details_tbody = ET.fromstring(details.to_html(header=False,index=False))[0]
+            # Add classes
+            summary_tbody.attrib['class'] = "summary"
+            details_tbody.attrib['details'] = "details"
+            # Append summary and details to main table.
+            table = gui_html.find('body/table')
+            return [summary_tbody, details_tbody]
+        
+        
+        ##################################################
+        # Make the GUI
+        ##################################################
+        
+        gui_html = get_gui_template()
+        grouped = self.groupby(by='eval_group')
+        for group, df in grouped:
+            group_html = get_group_html(df, data_columns)
+            gui_html.extend(group_html)
+
+        ET.dump(gui_html)
+        
+        with open(output_html_path,'w') as f:
+            ET.ElementTree(root).write(f,pretty_print=True,method="html")   
         pass
 
-# test_path_1 = "problem_check/HW_1.3.csv"
-# test_path_2 = "problem_evaluated/HW_1.3_evaluated.csv"
-# df_check = ProblemCheck.import_csv(test_path_1)
-# df_check.evaluate(n_evals = 5)
-# df_check.export_csv(test_path_2)
-# df_evaluated = ProblemCheck.import_csv(test_path_2)
-# df_summary = df_evaluated.summarize()
+
+test_path = "problem_summary/HW_1.3.csv"
+df = ProblemCheckSummary.import_csv(test_path)
+df.make_gui()
+# print(df)
+# x = df.iloc[0,:]
+# print(x.to_frame().transpose().to_html())
