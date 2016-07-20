@@ -69,7 +69,7 @@ def split_csv_by_problem_id(input_csv_path, problem_id_front, sep='\t', acceptab
     return
         
 
-def eval_and_summarize(case_sensitive=True, n_evals=5):
+def analyze(case_sensitive=True, n_evals=2, evaluate=True, summarize=True, gui=True):
     raw_dir = "problem_check"
     eval_dir = "problem_evaluated"
     summary_dir = "problem_summary"
@@ -82,24 +82,29 @@ def eval_and_summarize(case_sensitive=True, n_evals=5):
         eval_path = "{directory}/{filename}".format(directory=eval_dir, filename=filename)
         summary_path = "{directory}/{filename}".format(directory=summary_dir, filename=filename)
         
-        start = time.time()
         print("\n" + "#"*100 + "\n# Working on {filename} ... {index}/{total}".format(filename=filename, total=total, index=index+1))
         try:
-            problem = ProblemCheck.import_csv(raw_path)
-            problem.drop_duplicates()
-            problem.evaluate(n_evals=n_evals)
-            problem.export_csv(eval_path)
-            dur = round( (time.time()-start)/60.0 , 2)
-            print("#"*10 + " "*10 + "Successfully Evaluated! Runtime: {dur}min".format(dur=dur))
-            start = time.time()
-            summary = problem.summarize()
-            summary.export_csv(summary_path)
-            dur = round( (time.time()-start)/60.0 , 2)
-            print("#"*10 + " "*10 + "Successfully Summarized! Runtime: {dur}min".format(dur=dur))
-            start = time.time()
-            summary.make_gui()
-            dur = round( (time.time()-start)/60.0 , 2)
-            print("#"*10 + " "*10 + "Successfully Constructed GUI! Runtime: {dur}min".format(dur=dur))
+            if evaluate:
+                start = time.time()
+                problem = ProblemCheck.import_csv(raw_path)
+                problem.drop_duplicates()
+                problem.evaluate(n_evals=n_evals)
+                problem.export_csv(eval_path)
+                dur = round( (time.time()-start)/60.0 , 2)
+                print("#"*10 + " "*10 + "Successfully Evaluated! Runtime: {dur}min".format(dur=dur))
+            if summarize:
+                start = time.time()
+                problem = ProblemCheck.import_csv(eval_path)
+                summary = problem.summarize()
+                summary.export_csv(summary_path)
+                dur = round( (time.time()-start)/60.0 , 2)
+                print("#"*10 + " "*10 + "Successfully Summarized! Runtime: {dur}min".format(dur=dur))
+            if gui:
+                start = time.time()
+                summary = ProblemCheckSummary.import_csv(summary_path)
+                summary.make_gui()
+                dur = round( (time.time()-start)/60.0 , 2)
+                print("#"*10 + " "*10 + "Successfully Constructed GUI! Runtime: {dur}min".format(dur=dur))
         except ParseException:
             dur = round( (time.time()-start)/60.0 , 2)
             print("Could not parse submissions in file. Runetime: {dur}min".format(dur=dur))
