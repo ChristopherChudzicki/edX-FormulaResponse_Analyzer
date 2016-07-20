@@ -63,8 +63,9 @@ def split_csv_by_problem_id(input_csv_path, problem_id_front, sep='\t', acceptab
     for group_name, group_df in grouped:
         problem_name = group_name.replace(problem_id_front,"")
         output_csv_path = output_path_template.format(problem_name=problem_name)
-        ensure_dir(output_csv_path)
-        group_df.to_csv(output_csv_path,sep="\t")
+        group_df = ProblemCheck(group_df)
+        group_df.metadata['problem'] = problem_name
+        group_df.export_csv(output_csv_path)
     return
         
 
@@ -518,7 +519,7 @@ class ProblemCheckSummary(ProblemCheckDataFrame):
         ET.dump(gui_html)
         
         with open(output_html_path,'w') as f:
-            ET.ElementTree(root).write(f,pretty_print=True,method="html")   
+            ET.ElementTree(root).write(f,pretty_print=True,method="html")
         pass
 
 
