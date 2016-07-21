@@ -136,8 +136,10 @@ def make_toc(problem_summaries = []):
         with open(output_html_path,'w') as f:
             ET.ElementTree(toc_html).write(f, pretty_print=True, method="html")
         return
+    def float_format(x):
+        return "{x:.2f}".format(x=x)
     def insert_table_content(toc_html, toc_df):
-        df_html = toc_df.to_html(index=False, escape=False)
+        df_html = toc_df.to_html(index=False, escape=False, float_format=float_format)
         table_content = ET.fromstring(df_html)[0:]
         # table_content should look like this:
         # <thead> 
@@ -150,7 +152,6 @@ def make_toc(problem_summaries = []):
         # tablesorter.js does not like have two header rows both with <th> tags. So we need to change HEADER LEVEL 0 data to be in <tdf> instead of <th>.
         for element in table_content[0][0]:
             element.tag = "td"
-        # table_content[0][0].attrib.pop('style') # pandas.DataFrame.to_html method adds some inline styling to thead. This removes that. (Fragile)
         table = toc_html.find('body/table')
         table.extend(table_content)
         return
@@ -167,7 +168,7 @@ def make_toc(problem_summaries = []):
         ('Submissions','empty'),
         ('Groups', 'Graded Correct'),
         ('Groups', 'Graded Iconsistently'),
-        ('','Feedback Score'),
+        ('Groups','Effective Number'),
     ]
     columns = pandas.MultiIndex.from_tuples(columns)
     # Initialize toc dataframe
@@ -187,8 +188,8 @@ def make_toc(problem_summaries = []):
         toc_df.loc[index, ('Submissions','empty')           ] = summary.metadata['n_empty_submissions']
         toc_df.loc[index, ('Groups', 'Graded Correct')      ] = summary.metadata['n_groups_fully_correct']
         toc_df.loc[index, ('Groups', 'Graded Iconsistently')] = summary.metadata['n_groups_partially_correct']
-        toc_df.loc[index, ('','Feedback Score')             ] = summary.metadata['feedback_score']
-    
+        toc_df.loc[index, ('Groups','Effective Number')     ] = 1/summary.metadata['feedback_score']
+
     insert_table_content(toc_html,toc_df)
     export_toc_html(toc_html)
     

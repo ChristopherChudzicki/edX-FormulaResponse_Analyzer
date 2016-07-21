@@ -2,13 +2,7 @@
 <head>
 <link rel="stylesheet" type="text/css" href="resources/tablesorter_blue/tablesorter_blue.css">
 <link rel="stylesheet" type="text/css" href="resources/gui_toc.css">
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script><script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><script type="text/javascript" src="resources/tablesorter.js"></script><script>
-		$(document).ready(function() 
-		    { 
-		        $("#indexTable").tablesorter(); 
-		    } 
-		);
-		</script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script><script type="text/javascript" src="resources/tablesorter.js"></script>
 </head>
 <body>
 <div class="intro">
@@ -17,13 +11,13 @@
 <p><em>TIP!</em> Sort multiple columns simultaneously by holding down the shift key and clicking a second, third, or fourth column header.
 		</p>
 </div>
+<p><button id="filter">Toggle rows</button> with fewer than <input type="number" id="filter-value"> submissions. </p>
 <table id="indexTable" class="tablesorter">
         <thead>
     <tr>
       <td></td>
       <td colspan="4" halign="left">Submissions</td>
-      <td colspan="2" halign="left">Groups</td>
-      <td></td>
+      <td colspan="3" halign="left">Groups</td>
     </tr>
     <tr>
       <th>problem</th>
@@ -33,7 +27,7 @@
       <th>empty</th>
       <th>Graded Correct</th>
       <th>Graded Iconsistently</th>
-      <th>Feedback Score</th>
+      <th>Effective Number</th>
     </tr>
   </thead>
   <tbody>
@@ -45,7 +39,7 @@
       <td>0</td>
       <td>1</td>
       <td>0</td>
-      <td>0.609837</td>
+      <td>1.64</td>
     </tr>
     <tr>
       <td><a href="problem/HW_1.3.html">HW_1.3</a></td>
@@ -55,7 +49,7 @@
       <td>1</td>
       <td>1</td>
       <td>0</td>
-      <td>0.560157</td>
+      <td>1.79</td>
     </tr>
     <tr>
       <td><a href="problem/HW_1.4.html">HW_1.4</a></td>
@@ -65,9 +59,20 @@
       <td>1</td>
       <td>1</td>
       <td>0</td>
-      <td>0.745356</td>
+      <td>1.34</td>
     </tr>
   </tbody>
 </table>
+<script type="text/javascript">
+        $("#indexTable").tablesorter();
+        $('button').on('click', function () {
+            var filterValue = $('#filter-value').val()
+            var matchedRows = $('#indexTable tbody tr').filter(function () {
+                return $(this).find('td').eq(2).text() > filterValue
+            })
+            console.log(matchedRows)
+            matchedRows.toggle();
+            });
+        </script>
 </body>
 </html>

@@ -6,3 +6,7 @@ table thead td {
     text-align:center;
     font-weight:bold;
 }
+
+#filter-value {
+    width:50px;
+}
