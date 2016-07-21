@@ -110,6 +110,91 @@ def analyze(case_sensitive=True, n_evals=2, evaluate=True, summarize=True, gui=T
             print("Could not parse submissions in file. Runetime: {dur}min".format(dur=dur))
         except Exception as e:
             print("!"*50 + "\n" + str(e) + "\n" + "!"*50)
+def make_toc(problem_summaries = []):
+    """Make table of conents (toc) for problems that displays some problem metadata.
+    """
+    ##################################################
+    # Note to Future
+    ##################################################
+    # No calculations should be done in this function, just file-writing and formatting XML. Quantities such as feedback_score are calculated during ProblemCheckSummary initialization.
+    
+    if problem_summaries == []:
+        problem_summaries = os.listdir("problem_summary")
+    
+    ##################################################
+    # Helper Functions
+    ##################################################
+    def get_toc_template():
+        template_path = "gui/templates/gui_toc_template.html"
+        with open(template_path,'r') as f:
+            parser = ET.XMLParser(remove_blank_text=True)
+            tree = ET.parse(f,parser)
+        return tree.getroot()
+    
+    def export_toc_html(toc_html):
+        output_html_path = "gui/toc.html"
+        with open(output_html_path,'w') as f:
+            ET.ElementTree(toc_html).write(f, pretty_print=True, method="html")
+        return
+    def insert_table_content(toc_html, toc_df):
+        df_html = toc_df.to_html(index=False, escape=False)
+        table_content = ET.fromstring(df_html)[0:]
+        # table_content should look like this:
+        # <thead> 
+        #   <tr> HEADER LEVEL 0 </tr>   ..... <--- contains <th></th>
+        #   <tr> HEADER LEVEL 1 </tr>   ..... <--- contains <th></th>
+        # <thead>
+        # <tbody>
+        #   <tr> DATA </tr>             ..... <--- contains <td></td>
+        # </tbody>
+        # tablesorter.js does not like have two header rows both with <th> tags. So we need to change HEADER LEVEL 0 data to be in <tdf> instead of <th>.
+        for element in table_content[0][0]:
+            element.tag = "td"
+        # table_content[0][0].attrib.pop('style') # pandas.DataFrame.to_html method adds some inline styling to thead. This removes that. (Fragile)
+        table = toc_html.find('body/table')
+        table.extend(table_content)
+        return
+    
+    ##################################################
+    # Make ToC
+    ##################################################
+    toc_html = get_toc_template()
+    columns = [
+        ('','problem'),
+        ('Submissions','total'),
+        ('Submissions','correct'),
+        ('Submissions','incorrect'),
+        ('Submissions','empty'),
+        ('Groups', 'Graded Correct'),
+        ('Groups', 'Graded Iconsistently'),
+        ('','Feedback Score'),
+    ]
+    columns = pandas.MultiIndex.from_tuples(columns)
+    # Initialize toc dataframe
+    toc_df = pandas.DataFrame(0, index=problem_summaries, columns=columns)
+    
+    for index, row in toc_df.iterrows():
+        filepath = index
+        summary_path = "problem_summary/{filepath}".format(filepath=filepath)
+        filename = os.path.splitext(filepath)[0] # removes extension
+        gui_path = "problem/{filename}.html".format(filename=filename)
+        summary = ProblemCheckSummary.import_csv(summary_path)
+        #Write to toc
+        toc_df.loc[index, ('','problem')                    ] = "<a href='{gui_path}'>{filename}</a>".format(gui_path=gui_path, filename=filename)
+        toc_df.loc[index, ('Submissions','total')           ] = summary.metadata['n_submissions']
+        toc_df.loc[index, ('Submissions','correct')         ] = summary.metadata['n_correct_submissions']
+        toc_df.loc[index, ('Submissions','incorrect')       ] = summary.metadata['n_incorrect_submissions']
+        toc_df.loc[index, ('Submissions','empty')           ] = summary.metadata['n_empty_submissions']
+        toc_df.loc[index, ('Groups', 'Graded Correct')      ] = summary.metadata['n_groups_fully_correct']
+        toc_df.loc[index, ('Groups', 'Graded Iconsistently')] = summary.metadata['n_groups_partially_correct']
+        toc_df.loc[index, ('','Feedback Score')             ] = summary.metadata['feedback_score']
+    
+    insert_table_content(toc_html,toc_df)
+    export_toc_html(toc_html)
+    
+    return
+    
+        
 class EmptySubmissionException(Exception):
     """A custom exception we throw when trying to evaluate empty submissions."""
     pass
@@ -241,8 +326,13 @@ class ProblemCheck(ProblemCheckDataFrame):
         assert 'correctness' in self.columns
         assert 'response_type' in self.columns
         self._clean()
+        self._add_counts_to_metadata()
+    def _add_counts_to_metadata(self):
         self.metadata['n_submissions'] = self.shape[0]
-        self.metadata['n_empty'] = sum(self['submission']==self.metadata['empty_encoding'])
+        self.metadata['n_empty_submissions'] = sum(self['submission']==self.metadata['empty_encoding'])
+        self.metadata['n_incorrect_submissions'] = sum((self['submission']!=self.metadata['empty_encoding'])&(self['correctness']!=True))
+        self.metadata['n_correct_submissions'] = sum((self['submission']!=self.metadata['empty_encoding'])&(self['correctness']==True))
+        return
     def _clean(self):
         # If *ALL* submissions to a problem are numeric, pandas will import as numbers not strings and emptys become nan. Replace these by empty_encoding
         self['submission'].fillna(self.metadata['empty_encoding'], inplace=True)
@@ -267,8 +357,7 @@ class ProblemCheck(ProblemCheckDataFrame):
         """
         self.drop_duplicates(subset=["hashed_username","submission"], inplace=True)
         self.metadata['drop_duplicates'] = True
-        self.metadata['n_submissions'] = self.shape[0]
-        self.metadata['n_empty'] = sum(self['submission']==self.metadata['empty_encoding'])
+        self._add_counts_to_metadata()
         return
     def _update_vars_dict_list(self, submission):
         '''
@@ -425,6 +514,47 @@ class ProblemCheckSummary(ProblemCheckDataFrame):
     def __init__(self, *args, **kwargs):
         #Initialize super class
         super(ProblemCheckSummary, self).__init__(*args,**kwargs)
+        self.metadata['feedback_score'] = self._feedback_score()
+        self.metadata['n_groups_fully_correct'] = self._groups_fully_correct()
+        self.metadata['n_groups_partially_correct'] = self._groups_partially_correct()
+    def _feedback_score(self):
+        '''
+        Make a probability distribution for the wrong answers only, then calculate its L2-norm.
+        '''
+        # Keep one row per evaluation group
+        df = self.drop_duplicates(subset=['eval_group'])
+        # drop empties
+        df = df.loc[ df['submission']!= self.metadata['empty_encoding'] , ]
+        # We want to only include wrong answers, which have correctness == 1
+        # But sometimes the identical submissions by the same user are graded differently (since edX uses different random samples for each user)
+        # So correctness can have any value between 0 and 1 
+        # So weight 'eval_frequency' by 1 - 'eval_correctness'
+        p_wrong = df['eval_frequency']*(1-df['eval_correctness']) 
+        # Normalize
+        p_wrong = p_wrong / sum( p_wrong )
+        
+        return numpy.linalg.norm(p_wrong, ord=2)
+    
+    def _groups_fully_correct(self):
+        '''
+        returns the number of distinct evaluation groups in which all submissions are correct
+        '''
+        # Keep one row per evaluation group
+        df = self.drop_duplicates(subset=['eval_group'])
+        # drop empties
+        df = df.loc[ df['submission']!= self.metadata['empty_encoding'] , ]
+
+        return sum(df['eval_correctness']==1.0)
+    def _groups_partially_correct(self):
+        '''
+        returns the number of distinct evaluation groups in which **some but not all** submissions are correct
+        '''
+        # Keep one row per evaluation group
+        df = self.drop_duplicates(subset=['eval_group'])
+        # drop empties
+        df = df.loc[ df['submission']!= self.metadata['empty_encoding'] , ]
+
+        return sum( (df['eval_correctness'] < 1.0)&(df['eval_correctness'] > 0.0) )
     def make_gui(self):
         """Make a a single-problem GUI from problem summary.
         
@@ -548,11 +678,5 @@ class ProblemCheckSummary(ProblemCheckDataFrame):
         
         export_gui_html(gui_html)
         return
+    
 
-
-# test_path = "problem_summary/HW_1.3.csv"
-# df = ProblemCheckSummary.import_csv(test_path)
-# df.make_gui()
-# print(df)
-# x = df.iloc[0,:]
-# print(x.to_frame().transpose().to_html())

@@ -1,0 +1,73 @@
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="resources/tablesorter_blue/tablesorter_blue.css">
+<link rel="stylesheet" type="text/css" href="resources/gui_toc.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script><script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><script type="text/javascript" src="resources/tablesorter.js"></script><script>
+		$(document).ready(function() 
+		    { 
+		        $("#indexTable").tablesorter(); 
+		    } 
+		);
+		</script>
+</head>
+<body>
+<div class="intro">
+<p>For each symbolic ("formularesponse") problem in the course, submissions are grouped by numerical smapling (i.e., roughly by mathematical equivalence.)</p>
+<ul><li><p>Feedback Score (range: 0.0--1.0): Attempts to quantify how much a problem would benefit from wrong-answer feedback. A high score indicates that most wrong answers are of a few common types, so providing wrong-answer feedback is tractable.</p></li></ul>
+<p><em>TIP!</em> Sort multiple columns simultaneously by holding down the shift key and clicking a second, third, or fourth column header.
+		</p>
+</div>
+<table id="indexTable" class="tablesorter">
+        <thead>
+    <tr>
+      <td></td>
+      <td colspan="4" halign="left">Submissions</td>
+      <td colspan="2" halign="left">Groups</td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>problem</th>
+      <th>total</th>
+      <th>correct</th>
+      <th>incorrect</th>
+      <th>empty</th>
+      <th>Graded Correct</th>
+      <th>Graded Iconsistently</th>
+      <th>Feedback Score</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><a href="problem/HW_1.1.html">HW_1.1</a></td>
+      <td>36</td>
+      <td>14</td>
+      <td>22</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0.609837</td>
+    </tr>
+    <tr>
+      <td><a href="problem/HW_1.3.html">HW_1.3</a></td>
+      <td>45</td>
+      <td>16</td>
+      <td>28</td>
+      <td>1</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0.560157</td>
+    </tr>
+    <tr>
+      <td><a href="problem/HW_1.4.html">HW_1.4</a></td>
+      <td>7</td>
+      <td>3</td>
+      <td>3</td>
+      <td>1</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0.745356</td>
+    </tr>
+  </tbody>
+</table>
+</body>
+</html>

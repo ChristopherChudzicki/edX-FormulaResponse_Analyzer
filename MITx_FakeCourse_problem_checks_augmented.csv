@@ -96,6 +96,6 @@ time	hashed_username	problem_id	correctness	submission	attempt_number	input_type
 2015-05-13T08:28:115	user2	i4x-MITx-FakeCourse-problem-HW_1.4	FALSE	2.72	1	textline	formularesponse
 2015-05-13T08:28:116	user2	i4x-MITx-FakeCourse-problem-HW_1.4	TRUE	3.14	2	textline	formularesponse
 2015-05-13T08:28:117	user3	i4x-MITx-FakeCourse-problem-HW_1.4	FALSE	2.72	1	textline	formularesponse
-2015-05-13T08:28:118	user3	i4x-MITx-FakeCourse-problem-HW_1.4	TRUE	5	2	textline	formularesponse
-2015-05-13T08:28:119	user3	i4x-MITx-FakeCourse-problem-HW_1.4	TRUE		3	textline	formularesponse
+2015-05-13T08:28:118	user3	i4x-MITx-FakeCourse-problem-HW_1.4	FALSE	5	2	textline	formularesponse
+2015-05-13T08:28:119	user3	i4x-MITx-FakeCourse-problem-HW_1.4	FALSE		3	textline	formularesponse
 2015-05-13T08:28:120	user3	i4x-MITx-FakeCourse-problem-HW_1.4	TRUE	3.14	4	textline	formularesponse

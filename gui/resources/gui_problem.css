@@ -1,12 +1,12 @@
 table {
-    width:75%;
+    width:100%;
 }
 tbody, tr {
     display:block;
 }
 
 td:first-child {
-    width:75%;
+    width:400px;
 }
 td {
 	padding-left:1em;

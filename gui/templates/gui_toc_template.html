@@ -1,0 +1,37 @@
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="resources/tablesorter_blue/tablesorter_blue.css"/>
+		<link rel="stylesheet" type="text/css" href="resources/gui_toc.css"/>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+		<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+		<script type="text/javascript" src="resources/tablesorter.js"></script>
+		<script>
+		$(document).ready(function() 
+		    { 
+		        $("#indexTable").tablesorter(); 
+		    } 
+		);
+		</script>
+	</head>
+	<body>
+		
+		<div class="intro">
+			<p>For each symbolic ("formularesponse") problem in the course, submissions are grouped by numerical smapling (i.e., roughly by mathematical equivalence.)</p>
+		
+			<ul>
+				<li>
+					<p>Feedback Score (range: 0.0--1.0): Attempts to quantify how much a problem would benefit from wrong-answer feedback. A high score indicates that most wrong answers are of a few common types, so providing wrong-answer feedback is tractable.</p>
+				</li>
+			</ul>
+			
+		<p>
+			<em>TIP!</em> Sort multiple columns simultaneously by holding down the shift key and clicking a second, third, or fourth column header.
+		</p>
+		</div>
+		
+		
+		
+		<table id="indexTable" class="tablesorter">
+        </table>
+	</body>
+</html>

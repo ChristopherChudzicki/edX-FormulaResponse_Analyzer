@@ -7,7 +7,7 @@ table.tablesorter {
 	width: 100%;
 	text-align: left;
 }
-table.tablesorter thead tr th, table.tablesorter tfoot tr th {
+table.tablesorter thead tr td, table.tablesorter thead tr th, table.tablesorter tfoot tr th {
 	background-color: #e6EEEE;
 	border: 1px solid #FFF;
 	font-size: 8pt;
