@@ -6,9 +6,13 @@ import json
 import os, time, warnings
 import lxml.etree as ET
 
-#Eceptions:
+# Eceptions:
 from pyparsing import ParseException
 from calc import UndefinedVariable
+
+# Strangely, setting the display.maxcolwidth prevents pandas from truncating DataFrame.to_html() VALUE.
+# see http://stackoverflow.com/a/26301947/2747370
+pandas.set_option('display.max_colwidth', -1)
 
 ##################################################
 #       Patch calc.py to be a bit more foregiving about function domains
@@ -212,6 +216,18 @@ class ProblemCheckDataFrame(pandas.DataFrame):
         # if this object was instantiated using another ProblemCheckDataFrame, try to get its metadata
         if isinstance(args[0], ProblemCheckDataFrame):
             self.metadata.update(args[0].metadata)
+        self._clean_submission()
+    def _clean_submission(self):
+        # If *ALL* submissions to a problem are numeric, pandas will import as numbers not strings and emptys become nan. Replace these by empty_encoding
+        self['submission'].fillna(self.metadata['empty_encoding'], inplace=True)
+        #After dealing with above very special case, ensure string
+        self['submission'] = self['submission'].astype(str)
+        #Remove all whitespace
+        self['submission'] = self['submission'].replace(r"\s+", '', regex=True)
+        #Remove anything of the form `[...]`, for example `[tab]`
+        self['submission'] = self['submission'].replace(r'\[.*\]', '', regex=True)
+        #Replace empty (or all-whitespace) submissions by empty_encoding
+        self['submission'] = self['submission'].replace('', self.metadata['empty_encoding'])
     def _export_metadata(self, filepath):
         """Inserts a two-line header at top of filepath that stores self.metadata
         Header lines are preceded by '#'.
@@ -326,7 +342,6 @@ class ProblemCheck(ProblemCheckDataFrame):
         assert 'submission' in self.columns
         assert 'correctness' in self.columns
         assert 'response_type' in self.columns
-        self._clean()
         self._add_counts_to_metadata()
     def _add_counts_to_metadata(self):
         self.metadata['n_submissions'] = self.shape[0]
@@ -334,17 +349,6 @@ class ProblemCheck(ProblemCheckDataFrame):
         self.metadata['n_incorrect_submissions'] = sum((self['submission']!=self.metadata['empty_encoding'])&(self['correctness']!=True))
         self.metadata['n_correct_submissions'] = sum((self['submission']!=self.metadata['empty_encoding'])&(self['correctness']==True))
         return
-    def _clean(self):
-        # If *ALL* submissions to a problem are numeric, pandas will import as numbers not strings and emptys become nan. Replace these by empty_encoding
-        self['submission'].fillna(self.metadata['empty_encoding'], inplace=True)
-        #After dealing with above very special case, ensure string
-        self['submission'] = self['submission'].astype(str)
-        #Remove all whitespace
-        self['submission'] = self['submission'].replace(r"\s+", '', regex=True)
-        #Remove anything of the form `[...]`, for example `[tab]`
-        self['submission'] = self['submission'].replace(r'\[.*\]', '', regex=True)
-        #Replace empty (or all-whitespace) submissions by empty_encoding
-        self['submission'] = self['submission'].replace('', self.metadata['empty_encoding'])
     def drop_ducplicates(self):
         """Drops duplicate submission strings by the same user, records some metadata.
         
@@ -525,7 +529,7 @@ class ProblemCheckSummary(ProblemCheckDataFrame):
         # Keep one row per evaluation group
         df = self.drop_duplicates(subset=['eval_group'])
         # drop empties
-        df = df.loc[ df['submission']!= self.metadata['empty_encoding'] , ]
+        df = df.loc[ df['submission'] != self.metadata['empty_encoding'] , ]
         # We want to only include wrong answers, which have correctness == 1
         # But sometimes the identical submissions by the same user are graded differently (since edX uses different random samples for each user)
         # So correctness can have any value between 0 and 1 
