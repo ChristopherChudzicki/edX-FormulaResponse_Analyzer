@@ -123,6 +123,9 @@ def make_toc(problem_summaries = []):
     ##################################################
     # No calculations should be done in this function, just file-writing and formatting XML. Quantities such as feedback_score are calculated during ProblemCheckSummary initialization.
     
+    # Make sure that gui/templates and gui/resources exist
+    _ensure_templates_and_resources()
+    
     if problem_summaries == []:
         problem_summaries = os.listdir("problem_summary")
     
@@ -201,7 +204,7 @@ def make_toc(problem_summaries = []):
     return
     
         
-def _ensure_templates():
+def _ensure_templates_and_resources():
     """Ensure that GUI template files exist in the current working directory."""
     module_gui = os.path.dirname(os.path.realpath(__file__)) + "/gui"
     cwd_gui = os.getcwd() + "/gui"
@@ -640,6 +643,10 @@ class ProblemCheckSummary(ProblemCheckDataFrame):
                 'details':'subm_count'
             }
         ]
+        
+        # Make sure that gui/templates and gui/resources exist
+        _ensure_templates_and_resources()
+        
         ##################################################
         # Helper Functions
         ##################################################
