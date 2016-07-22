@@ -4,6 +4,7 @@ import calc
 import random
 import json
 import os, time, warnings
+import shutil
 import lxml.etree as ET
 
 # Eceptions:
@@ -42,7 +43,7 @@ def ensure_dir(path):
     '''Check if path's directory exists, create if necessary. From http://stackoverflow.com/questions/273192/in-python-check-if-a-directory-exists-and-create-it-if-necessary'''
     directory = os.path.dirname(path)
     if not os.path.exists(directory):
-        message = "Creating directory {directory}".format(directory=directory)
+        message = "Creating directory {directory}/".format(directory=directory)
         warnings.warn(message, RuntimeWarning)
         os.makedirs(directory)
 
@@ -200,6 +201,18 @@ def make_toc(problem_summaries = []):
     return
     
         
+def _ensure_templates():
+    """Ensure that GUI template files exist in the current working directory."""
+    module_gui = os.path.dirname(os.path.realpath(__file__)) + "/gui"
+    cwd_gui = os.getcwd() + "/gui"
+    
+    try:
+        shutil.copytree(module_gui, cwd_gui)
+        message = "Creating directory gui/"
+        warnings.warn(message, RuntimeWarning)
+    except OSError:
+        pass
+    return
 class EmptySubmissionException(Exception):
     """A custom exception we throw when trying to evaluate empty submissions."""
     pass
