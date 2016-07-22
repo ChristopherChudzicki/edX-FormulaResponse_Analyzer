@@ -92,7 +92,7 @@ def analyze(case_sensitive=True, n_evals=2, evaluate=True, summarize=True, gui=T
                 start = time.time()
                 problem = ProblemCheck.import_csv(raw_path)
                 problem.drop_duplicates()
-                problem.evaluate(n_evals=n_evals)
+                problem.evaluate(n_evals=n_evals, case_sensitive=case_sensitive)
                 problem.export_csv(eval_path)
                 dur = round( (time.time()-start)/60.0 , 2)
                 print("#"*10 + " "*10 + "Successfully Evaluated! Runtime: {dur}min".format(dur=dur))
@@ -367,6 +367,17 @@ class ProblemCheck(ProblemCheckDataFrame):
     def _update_vars_dict_list(self, submission):
         '''
         Detects variables used in submission and updates vars_dict_list accordingly.
+        
+        COMMENT about 'e' and 'pi':
+            The edX parser has some strange behavior.
+        
+                expression:     detected variables:     Note:
+                sin(a*pi)   ... a                       pi treated as 3.14159
+                sin(a_1*pi) ... a_1, pi                 pi must be assigned a value
+                e^a         ... a                       e treated as 2.71828
+                e^a_1       ... a_1, e                  e must be assigned value
+        
+        This does not appear to be an issue when grading problems on edx.org. Possibly they do some additional processing not included in calc.evaluator
         '''
         try:
             # Extract new variables from submission
@@ -381,8 +392,17 @@ class ProblemCheck(ProblemCheckDataFrame):
             new_vars = full_vars - old_vars
             # Assign values to each new variable
             for var in list(new_vars):
+                message = "Updated vars_dict_list to include {var} with values {vals}"
+                vals = []
                 for vars_dict in self.metadata['vars_dict_list']:
-                    vars_dict[var] = random.uniform(0.01,1)
+                    if var in ['e','pi']:
+                        val = calc.DEFAULT_VARIABLES[var]
+                    else:
+                        val = random.uniform(0.5,1.5)
+                    vars_dict[var] = val
+                    vals.append(val)
+                
+                print(message.format(var=var, vals=["{val:.3f}".format(val=val) for val in vals]))
             return 
         except ParseException:
             print("Failed to update varDict")
@@ -405,6 +425,10 @@ class ProblemCheck(ProblemCheckDataFrame):
         return
     
     def evaluate(self, n_evals=2, case_sensitive=True):
+        """
+        n_evals: number of evaluations to make
+        case_sensitive: treat variables case sensitively or not
+        """
         ##################################################
         # Store some metadata
         ##################################################
@@ -419,7 +443,6 @@ class ProblemCheck(ProblemCheckDataFrame):
             try:
                 self._evaluate_row(index,row)
             except UndefinedVariable as undefined_variable:
-                print("Attempting to update vars_dict_list to include {var}".format(var=undefined_variable))
                 self._update_vars_dict_list(row['submission'])
                 self._evaluate_row(index, row)
             except EmptySubmissionException:

@@ -76,8 +76,8 @@ time	hashed_username	problem_id	correctness	submission	attempt_number	input_type
 2015-05-13T08:28:95	user21	i4x-MITx-FakeCourse-problem-HW_1.3	FALSE	a*b	1	textline	formularesponse
 2015-05-13T08:28:96	user22	i4x-MITx-FakeCourse-problem-HW_1.3	FALSE	b*a	1	textline	formularesponse
 2015-05-13T08:28:97	user3	i4x-MITx-FakeCourse-problem-HW_1.3	TRUE	sin(a*b)	3	textline	formularesponse
-2015-05-13T08:28:98	user3	i4x-MITx-FakeCourse-problem-HW_1.3	FALSE	sin(a/b)	2	textline	formularesponse
-2015-05-13T08:28:99	user3	i4x-MITx-FakeCourse-problem-HW_1.3	FALSE	tan(a*b)	1	textline	formularesponse
+2015-05-13T08:28:98	user3	i4x-MITx-FakeCourse-problem-HW_1.3	FALSE	e^(a_1*b)	2	textline	formularesponse
+2015-05-13T08:28:99	user3	i4x-MITx-FakeCourse-problem-HW_1.3	FALSE	exp(a*pi)	1	textline	formularesponse
 2015-05-13T08:28:100	user4	i4x-MITx-FakeCourse-problem-HW_1.3	TRUE	sin(a*b)	3	textline	formularesponse
 2015-05-13T08:28:101	user4	i4x-MITx-FakeCourse-problem-HW_1.3	FALSE	sin(a/b)	2	textline	formularesponse
 2015-05-13T08:28:102	user4	i4x-MITx-FakeCourse-problem-HW_1.3	FALSE	sin(a*b)/cos(a*b)	1	textline	formularesponse
