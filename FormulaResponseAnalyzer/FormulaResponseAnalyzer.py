@@ -92,7 +92,7 @@ def analyze(case_sensitive=True, n_evals=2, evaluate=True, summarize=True, gui=T
             if evaluate:
                 start = time.time()
                 problem = ProblemCheck.import_csv(raw_path)
-                problem.drop_duplicates()
+                problem.remove_duplicates()
                 problem.evaluate(n_evals=n_evals, case_sensitive=case_sensitive)
                 problem.export_csv(eval_path)
                 dur = round( (time.time()-start)/60.0 , 2)
@@ -328,7 +328,7 @@ class ProblemCheck(ProblemCheckDataFrame):
         
         Numerically evaluate submission data stored in a CSV file
         >>> example = ProblemCheck.import_csv('example_problem.csv') #load data from CSV 
-        >>> example.drop_duplicates()                                #drop duplicate submissions
+        >>> example.remove_duplicates()                                #drop duplicate submissions
         >>> example.evaluate()                                       #numerically evaluate submissions
         >>> example.export_csv('example_problem_evaluated.csv')      #export evaluated CSV
         See `evaluate()` for more information
@@ -365,7 +365,7 @@ class ProblemCheck(ProblemCheckDataFrame):
         self.metadata['n_incorrect_submissions'] = sum((self['submission']!=self.metadata['empty_encoding'])&(self['correctness']!=True))
         self.metadata['n_correct_submissions'] = sum((self['submission']!=self.metadata['empty_encoding'])&(self['correctness']==True))
         return
-    def drop_ducplicates(self):
+    def remove_duplicates(self):
         """Drops duplicate submission strings by the same user, records some metadata.
         
         For example, if:
@@ -377,7 +377,7 @@ class ProblemCheck(ProblemCheckDataFrame):
             Bob                'a*b'        # keep
         """
         self.drop_duplicates(subset=["hashed_username","submission"], inplace=True)
-        self.metadata['drop_duplicates'] = True
+        self.metadata['remove_duplicates'] = True
         self._add_counts_to_metadata()
         return
     def _update_vars_dict_list(self, submission):
