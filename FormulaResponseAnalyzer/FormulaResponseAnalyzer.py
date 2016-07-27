@@ -536,7 +536,7 @@ class ProblemCheck(ProblemCheckDataFrame):
             summary.loc[eval_group,'eval_group'] = index
             summary.loc[eval_group,'eval_count']= eval_group_size(eval_group)
             # percent of submissions that **I have declared** numerically equivalent that were graded correct by edX
-            summary.loc[eval_group,'eval_correctness']=numpy.mean(summary.loc[eval_group,'subm_correctness'])
+            summary.loc[eval_group,'eval_correctness'] = numpy.average(summary.loc[eval_group,'subm_correctness'] , weights=summary.loc[eval_group,'subm_count'])
         # eval group frequencies: percent of ALL submissions that evaluated numerically equiv
         summary['eval_frequency'] = summary['eval_count']/total
         # submission group frequencies: percent of numerically equivalent submssions that are same string
