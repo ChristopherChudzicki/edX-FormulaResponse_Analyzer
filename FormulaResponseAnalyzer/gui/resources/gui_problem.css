@@ -1,11 +1,11 @@
 table {
     width:100%;
 }
-tbody, tr {
+thead, tbody, tr {
     display:block;
 }
 
-td:first-child {
+th:first-child, td:first-child {
     width:400px;
 }
 td {
@@ -13,6 +13,10 @@ td {
 	padding-right:1em;
 	padding-top:0.25em;
 	padding-bottom:0.25em;
+}
+thead {
+    background-color: rgb(85%,85%,85%);
+    margin-bottom:2px;
 }
 .summary {
 	background-color: rgb(85%,85%,85%);

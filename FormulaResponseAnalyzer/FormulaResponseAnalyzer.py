@@ -47,6 +47,8 @@ def ensure_dir(path):
         warnings.warn(message, RuntimeWarning)
         os.makedirs(directory)
 
+def float_format(x):
+    return "{x:.3f}".format(x=x)
 def split_csv_by_problem_id(input_csv_path, problem_id_front, sep='\t', acceptable_response_types=['formularesponse']):
     '''
     (single csv)->many csv
@@ -144,8 +146,6 @@ def make_toc(problem_summaries = []):
         with open(output_html_path,'w') as f:
             ET.ElementTree(toc_html).write(f, pretty_print=True, method="html")
         return
-    def float_format(x):
-        return "{x:.2f}".format(x=x)
     def insert_table_content(toc_html, toc_df):
         df_html = toc_df.to_html(index=False, escape=False, float_format=float_format)
         table_content = ET.fromstring(df_html)[0:]
@@ -696,8 +696,8 @@ class ProblemCheckSummary(ProblemCheckDataFrame):
             #   </tbody>
             # </table>
             # We just want the tbody, so we get the [0]th child of table. 
-            summary_tbody = ET.fromstring(summary.to_html(header=False,index=False))[0]
-            details_tbody = ET.fromstring(details.to_html(header=False,index=False))[0]
+            summary_tbody = ET.fromstring(summary.to_html(header=False,index=False, float_format=float_format)  )[0]
+            details_tbody = ET.fromstring(details.to_html(header=False,index=False, float_format=float_format)  )[0]
             # Add classes
             summary_tbody.attrib['class'] = "summary"
             details_tbody.attrib['class'] = "details"
@@ -706,6 +706,16 @@ class ProblemCheckSummary(ProblemCheckDataFrame):
             table.extend([summary_tbody, details_tbody])
             return
         
+        def insert_gui_header(gui_html, data_columns):
+            gui_columns = []
+            for col in data_columns:
+                gui_columns.append( col['gui'] )
+            header_df = pandas.DataFrame(columns=gui_columns)
+            gui_thead = ET.fromstring( header_df.to_html(index=False) )[0]
+            gui_thead.find('tr').attrib['style'] = ''
+            table = gui_html.find('body/table')
+            table.insert(0, gui_thead)
+            return  
         def export_gui_html(gui_html):
             output_html_path = "gui/problem/{problem}.html".format(problem=self.metadata['problem'])
             try:
@@ -720,6 +730,8 @@ class ProblemCheckSummary(ProblemCheckDataFrame):
         # Make the GUI
         ##################################################
         gui_html = get_gui_template()
+        insert_gui_header(gui_html, data_columns)
+        
         grouped = self.groupby(by='eval_group')
         for group, df in grouped:
             insert_group_html(gui_html, df, data_columns)
