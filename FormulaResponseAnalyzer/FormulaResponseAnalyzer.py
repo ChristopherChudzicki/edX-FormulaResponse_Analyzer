@@ -196,7 +196,7 @@ def make_toc(problem_summaries = []):
         toc_df.loc[index, ('Submissions','empty')           ] = summary.metadata['n_empty_submissions']
         toc_df.loc[index, ('Groups', 'Graded Correct')      ] = summary.metadata['n_groups_fully_correct']
         toc_df.loc[index, ('Groups', 'Graded Iconsistently')] = summary.metadata['n_groups_partially_correct']
-        toc_df.loc[index, ('Groups','Effective Number')     ] = 1/summary.metadata['feedback_score']
+        toc_df.loc[index, ('Groups','Effective Number')     ] = 1/summary.metadata['feedback_score']**2
 
     insert_table_content(toc_html,toc_df)
     export_toc_html(toc_html)
