@@ -410,11 +410,12 @@ class ProblemCheck(ProblemCheckDataFrame):
             for var in list(new_vars):
                 message = "Updated vars_dict_list to include {var} with values {vals}"
                 vals = []
-                for vars_dict in self.metadata['vars_dict_list']:
+                for index, vars_dict in enumerate(self.metadata['vars_dict_list']):
                     if var in ['e','pi']:
                         val = calc.DEFAULT_VARIABLES[var]
                     else:
-                        val = random.uniform(0.5,1.5)
+                        # use alternatingly +/- values
+                        val = (-1)**index * random.uniform(0.5,1.5)
                     vars_dict[var] = val
                     vals.append(val)
                 
