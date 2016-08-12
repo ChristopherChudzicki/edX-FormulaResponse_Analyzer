@@ -196,7 +196,10 @@ def make_toc(problem_summaries = []):
         toc_df.loc[index, ('Submissions','empty')           ] = summary.metadata['n_empty_submissions']
         toc_df.loc[index, ('Groups', 'Graded Correct')      ] = summary.metadata['n_groups_fully_correct']
         toc_df.loc[index, ('Groups', 'Graded Iconsistently')] = summary.metadata['n_groups_partially_correct']
-        toc_df.loc[index, ('Groups','Effective Number')     ] = 1/summary.metadata['feedback_score']**2
+        try:
+            toc_df.loc[index, ('Groups','Effective Number')     ] = 1/summary.metadata['feedback_score']**2
+        except ZeroDivisionError:
+            toc_df.loc[index, ('Groups','Effective Number')     ] = float('inf')
 
     insert_table_content(toc_html,toc_df)
     export_toc_html(toc_html)
@@ -383,17 +386,6 @@ class ProblemCheck(ProblemCheckDataFrame):
     def _update_vars_dict_list(self, submission):
         '''
         Detects variables used in submission and updates vars_dict_list accordingly.
-        
-        COMMENT about 'e' and 'pi':
-            The edX parser has some strange behavior.
-        
-                expression:     detected variables:     Note:
-                sin(a*pi)   ... a                       pi treated as 3.14159
-                sin(a_1*pi) ... a_1, pi                 pi must be assigned a value
-                e^a         ... a                       e treated as 2.71828
-                e^a_1       ... a_1, e                  e must be assigned value
-        
-        This does not appear to be an issue when grading problems on edx.org. Possibly they do some additional processing not included in calc.evaluator
         '''
         try:
             # Extract new variables from submission
@@ -402,6 +394,10 @@ class ProblemCheck(ProblemCheckDataFrame):
             # Find out which variables are new
             old_vars = set(self.metadata['vars_dict_list'][0].keys())
             full_vars = submission.variables_used
+            # Remove 'e', 'pi', 'i' from full_vars, calc.evaluator will use default values
+            full_vars.discard('e')
+            full_vars.discard('pi')
+            full_vars.discard('i')
             if not self.metadata['case_sensitive']:
                 old_vars = set([var.lower() for var in old_vars])
                 full_vars = set([var.lower() for var in full_vars])
@@ -411,11 +407,7 @@ class ProblemCheck(ProblemCheckDataFrame):
                 message = "Updated vars_dict_list to include {var} with values {vals}"
                 vals = []
                 for index, vars_dict in enumerate(self.metadata['vars_dict_list']):
-                    if var in ['e','pi']:
-                        val = calc.DEFAULT_VARIABLES[var]
-                    else:
-                        # use alternatingly +/- values
-                        val = (-1)**index * random.uniform(0.5,1.5)
+                    val = random.uniform(0.5,1.5)
                     vars_dict[var] = val
                     vals.append(val)
                 
