@@ -205,8 +205,7 @@ def make_toc(problem_summaries = []):
     export_toc_html(toc_html)
     
     return
-    
-        
+      
 def _ensure_templates_and_resources():
     """Ensure that GUI template files exist in the current working directory."""
     module_gui = os.path.dirname(os.path.realpath(__file__)) + "/gui"
@@ -223,30 +222,32 @@ class EmptySubmissionException(Exception):
     """A custom exception we throw when trying to evaluate empty submissions."""
     pass
 
-class ProblemCheckDataFrame(pandas.DataFrame):
+class ProblemCheckBase(object):
     """Parent class, just used so ProblemCheck and ProblemCheckSummary can both inherit these methods
     """
     def __init__(self, *args,**kwargs):
-        super(ProblemCheckDataFrame, self).__init__(*args,**kwargs)
+        self.data = pandas.DataFrame(*args,**kwargs)
         self.from_path = None
         self.metadata = {}
         # specify how empty submissions are encoded. Should be a string
         self.metadata['empty_encoding'] = "EmptySubmission"
-        # if this object was instantiated using another ProblemCheckDataFrame, try to get its metadata
-        if isinstance(args[0], ProblemCheckDataFrame):
+        # if this object was instantiated using another ProblemCheckBase, try to get its metadata
+        if isinstance(args[0], ProblemCheckBase):
             self.metadata.update(args[0].metadata)
         self._clean_submission()
+    def __repr__(self):
+        return "metadata: {metadata}\n{data}".format(metadata=self.metadata, data=self.data)
     def _clean_submission(self):
         # If *ALL* submissions to a problem are numeric, pandas will import as numbers not strings and emptys become nan. Replace these by empty_encoding
-        self['submission'].fillna(self.metadata['empty_encoding'], inplace=True)
+        self.data['submission'].fillna(self.metadata['empty_encoding'], inplace=True)
         #After dealing with above very special case, ensure string
-        self['submission'] = self['submission'].astype(str)
+        self.data['submission'] = self.data['submission'].astype(str)
         #Remove all whitespace
-        self['submission'] = self['submission'].replace(r"\s+", '', regex=True)
+        self.data['submission'] = self.data['submission'].replace(r"\s+", '', regex=True)
         #Remove anything of the form `[...]`, for example `[tab]`
-        self['submission'] = self['submission'].replace(r'\[.*\]', '', regex=True)
+        self.data['submission'] = self.data['submission'].replace(r'\[.*\]', '', regex=True)
         #Replace empty (or all-whitespace) submissions by empty_encoding
-        self['submission'] = self['submission'].replace('', self.metadata['empty_encoding'])
+        self.data['submission'] = self.data['submission'].replace('', self.metadata['empty_encoding'])
     def _export_metadata(self, filepath):
         """Inserts a two-line header at top of filepath that stores self.metadata
         Header lines are preceded by '#'.
@@ -275,13 +276,13 @@ class ProblemCheckDataFrame(pandas.DataFrame):
         self.metadata.update(metadata)
     def _get_eval_columns(self):
         """Get all columns whose names begin with 'eval'. """
-        return [val for val in self.columns.values if val.startswith('eval')]
+        return [val for val in self.data.columns.values if val.startswith('eval')]
     @classmethod
     def import_csv(cls, *args, **kwargs):
         """For importing ProblemCheck CSV files.
         
         Same as pandas.read_csv, except:
-            0. bound to ProblemCheckDataFrame
+            0. bound to ProblemCheckBase
             1. tries to read metadata from top of file and binds to object
             2. sep = '\t' by default
             3. stores path of original csv
@@ -293,22 +294,21 @@ class ProblemCheckDataFrame(pandas.DataFrame):
         kwargs.setdefault('comment', '#')
         # Now import the dataframe and convert to class cls
         df = pandas.read_csv(*args,**kwargs)
-        df = cls(df)
+        problem_check = cls(df)
         # store path
-        df.from_path = args[0]
+        problem_check.from_path = args[0]
         # Get metadata
-        df._import_metadata(df.from_path)
+        problem_check._import_metadata(problem_check.from_path)
         
         # Fix complex numbers ...
         # Pandas does not import complex numbers properly from csv. This is a reported issue: https://github.com/pydata/pandas/issues/9379
-        for eval_col in df._get_eval_columns():
-            if df[eval_col].dtype==object: 
+        for eval_col in problem_check._get_eval_columns():
+            if problem_check.data[eval_col].dtype==object: 
                 df[eval_col] = df[eval_col].apply(complex)
         
-        return df 
-
+        return problem_check 
     def export_csv(self,*args,**kwargs):
-        """For exporting ProblemCehck dataframes.
+        """For exporting ProblemCheck data and metadata.
         
         Same as pandas.DataFrame.to_csv, except:
             0. stores metadata at top of csv
@@ -317,14 +317,14 @@ class ProblemCheckDataFrame(pandas.DataFrame):
         kwargs.setdefault('sep', '\t')
         # Export the dataframe as csv and add metadata
         try:
-            self.to_csv(*args,**kwargs)
+            self.data.to_csv(*args,**kwargs)
         except IOError:
             ensure_dir(args[0])
-            self.to_csv(*args,**kwargs)
+            self.data.to_csv(*args,**kwargs)
             
         self._export_metadata(args[0])
         return
-class ProblemCheck(ProblemCheckDataFrame):
+class ProblemCheck(ProblemCheckBase):
     """This class stores data and functions associated with analyzing submissions to edX FormulaResponse questions. 
     
     Typical Usage:
@@ -357,16 +357,16 @@ class ProblemCheck(ProblemCheckDataFrame):
         #Initialize super class
         super(ProblemCheck, self).__init__(*args,**kwargs)
         #Esnure required columns exist
-        assert 'hashed_username' in self.columns
-        assert 'submission' in self.columns
-        assert 'correctness' in self.columns
-        assert 'response_type' in self.columns
+        assert 'hashed_username' in self.data.columns
+        assert 'submission' in self.data.columns
+        assert 'correctness' in self.data.columns
+        assert 'response_type' in self.data.columns
         self._add_counts_to_metadata()
     def _add_counts_to_metadata(self):
-        self.metadata['n_submissions'] = self.shape[0]
-        self.metadata['n_empty_submissions'] = sum(self['submission']==self.metadata['empty_encoding'])
-        self.metadata['n_incorrect_submissions'] = sum((self['submission']!=self.metadata['empty_encoding'])&(self['correctness']!=True))
-        self.metadata['n_correct_submissions'] = sum((self['submission']!=self.metadata['empty_encoding'])&(self['correctness']==True))
+        self.metadata['n_submissions'] = self.data.shape[0]
+        self.metadata['n_empty_submissions'] = sum(self.data['submission']==self.metadata['empty_encoding'])
+        self.metadata['n_incorrect_submissions'] = sum((self.data['submission']!=self.metadata['empty_encoding'])&(self.data['correctness']!=True))
+        self.metadata['n_correct_submissions'] = sum((self.data['submission']!=self.metadata['empty_encoding'])&(self.data['correctness']==True))
         return
     def remove_duplicates(self):
         """Drops duplicate submission strings by the same user, records some metadata.
@@ -379,7 +379,7 @@ class ProblemCheck(ProblemCheckDataFrame):
             Bob                'a + b'      # drop
             Bob                'a*b'        # keep
         """
-        self.drop_duplicates(subset=["hashed_username","submission"], inplace=True)
+        self.data.drop_duplicates(subset=["hashed_username","submission"], inplace=True)
         self.metadata['remove_duplicates'] = True
         self._add_counts_to_metadata()
         return
@@ -420,7 +420,7 @@ class ProblemCheck(ProblemCheckDataFrame):
     def _evaluate_empty_row(self, index, row):
         """If a submission is empty, make all of its evaluations numpy.inf"""
         for sample_index, self.vars_dict in enumerate(self.metadata['vars_dict_list']):
-            self.loc[index,'eval.'+str(sample_index) ] = numpy.inf 
+            self.data.loc[index,'eval.'+str(sample_index) ] = numpy.inf 
         return
     
     def _evaluate_row(self, index, row):
@@ -430,7 +430,7 @@ class ProblemCheck(ProblemCheckDataFrame):
             raise EmptySubmissionException
         else:
             for sample_index, vars_dict in enumerate(self.metadata['vars_dict_list']):
-                self.loc[index,'eval.'+str(sample_index) ] = calc.evaluator(vars_dict, funcs_dict, row['submission'],case_sensitive=self.metadata['case_sensitive'])
+                self.data.loc[index,'eval.'+str(sample_index) ] = calc.evaluator(vars_dict, funcs_dict, row['submission'],case_sensitive=self.metadata['case_sensitive'])
         return
     
     def evaluate(self, n_evals=2, case_sensitive=True):
@@ -448,7 +448,7 @@ class ProblemCheck(ProblemCheckDataFrame):
         ##################################################
         # Do the evaluations
         ##################################################
-        for index, row in self.iterrows():
+        for index, row in self.data.iterrows():
             try:
                 self._evaluate_row(index,row)
             except UndefinedVariable as undefined_variable:
@@ -496,7 +496,7 @@ class ProblemCheck(ProblemCheckDataFrame):
         """
         eval_cols = self._get_eval_columns()
         # round eval columns to specified number of sig figs, then convert to floats so pandas.DataFrame.groupby can sort them
-        rounded_df = self.copy()
+        rounded_df = self.data.copy()
         for eval_col in eval_cols:
             rounded_df[eval_col] = self._sig_round(rounded_df[eval_col],n_sig=n_sig)
             rounded_df[eval_col] = rounded_df[eval_col].apply(str)
@@ -545,8 +545,7 @@ class ProblemCheck(ProblemCheckDataFrame):
         summary.metadata.update(self.metadata)
         
         return summary
-
-class ProblemCheckSummary(ProblemCheckDataFrame):
+class ProblemCheckSummary(ProblemCheckBase):
     """docstring for ProblemCheckSummary"""
     def __init__(self, *args, **kwargs):
         #Initialize super class
@@ -559,7 +558,7 @@ class ProblemCheckSummary(ProblemCheckDataFrame):
         Make a probability distribution for the wrong answers only, then calculate its L2-norm.
         '''
         # Keep one row per evaluation group
-        df = self.drop_duplicates(subset=['eval_group'])
+        df = self.data.drop_duplicates(subset=['eval_group'])
         # drop empties
         df = df.loc[ df['submission'] != self.metadata['empty_encoding'] , ]
         # We want to only include wrong answers, which have correctness == 1
@@ -577,7 +576,7 @@ class ProblemCheckSummary(ProblemCheckDataFrame):
         returns the number of distinct evaluation groups in which all submissions are correct
         '''
         # Keep one row per evaluation group
-        df = self.drop_duplicates(subset=['eval_group'])
+        df = self.data.drop_duplicates(subset=['eval_group'])
         # drop empties
         df = df.loc[ df['submission']!= self.metadata['empty_encoding'] , ]
 
@@ -587,7 +586,7 @@ class ProblemCheckSummary(ProblemCheckDataFrame):
         returns the number of distinct evaluation groups in which **some but not all** submissions are correct
         '''
         # Keep one row per evaluation group
-        df = self.drop_duplicates(subset=['eval_group'])
+        df = self.data.drop_duplicates(subset=['eval_group'])
         # drop empties
         df = df.loc[ df['submission']!= self.metadata['empty_encoding'] , ]
 
@@ -725,7 +724,7 @@ class ProblemCheckSummary(ProblemCheckDataFrame):
         gui_html = get_gui_template()
         insert_gui_header(gui_html, data_columns)
         
-        grouped = self.groupby(by='eval_group')
+        grouped = self.data.groupby(by='eval_group')
         for group, df in grouped:
             insert_group_html(gui_html, df, data_columns)
         
