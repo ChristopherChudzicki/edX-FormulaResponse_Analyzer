@@ -21,6 +21,11 @@ pandas.set_option('display.max_colwidth', -1)
 calc.DEFAULT_FUNCTIONS['sqrt'] = numpy.lib.scimath.sqrt #numpy.sqrt(-4) = nan, numpy.sqrt(-4+0j)=2j; numpy.lib.scimath.sqrt(-4)=2j
 calc.DEFAULT_FUNCTIONS['arccos'] = numpy.lib.scimath.arccos
 calc.DEFAULT_FUNCTIONS['arcsin'] = numpy.lib.scimath.arcsin
+# Remove constants 'c', 'q', 'T', 'k'
+calc.DEFAULT_VARIABLES.pop('c')
+calc.DEFAULT_VARIABLES.pop('q')
+calc.DEFAULT_VARIABLES.pop('k')
+calc.DEFAULT_VARIABLES.pop('T')
 #my_eval_power is the same as calc.eval_power, except it uses numpy.lib.scimath.power(b,a) instead of b**a. That way (-4)^0.3 will not throw errors.
 def my_eval_power(parse_result):
     """
