@@ -1,16 +1,33 @@
-# FormulaResponse_Analyzer.py
-Python script for analyzing submissions to edX formularesponse problems. Goals:
+# FormulaResponseAnalyzer
 
-1. For each formularesponse problem in the course, group submissions by mathematical equivalence.
-2. Provide an HTML/JS based user interface for viewing the grouped submissions.
-3. For an entire course, provide an HTML/JS interface to help course team identify problems that:
+## Goals
+A python module for analyzing submissions to edX formularesponse problems. Goals:
+
+1. For each formularesponse problem in the course, group submissions by (approximate) mathematical equivalence.
+2. For a single problem, provide an interface to view submission groups
+3. For a collection of problems (e.g., an entire course), provide an interface ("Table of Contents") to help identify problems that
     * would benefit from wrong-answer feedback
     * might have grading issues (e.g., poorly set numerical sampling range)
 
-`Formularesponse_Analyzer.py` builds a problem index for the entire course and summary page for each problem. Summary page for a single problem looks like this:
-![output of FormulaResponse_Analyzer for one problem](https://github.com/ChristopherChudzicki/edX-FormulaResponse_Analyzer/blob/master/problem_output_screenshot.png "Problem Output")
+TODO: New screenshots
 
-##Usage
+## Usage
+
+### Basic
+
+1.  function `split_csv_by_problem_id`
+2.  function `analyze`
+3.  function `make_toc`
+
+### More Info
+
+1.  class `ProblemCheck`
+2.  class `ProblemCheckSummary`
+
+## OLD
+
+TODO: move relevant parts up
+
 `Formularesponse_Analyzer.py` requires as input a `csv` file that contains submission data for each problem and user in your course. The file must contain columns for `hashed_username`, `correctness`, `submission`, and `response_type`. The "problem_checks_augmented" table from MITx is sufficient:
 
 |                     |                 |                                    |             |            |                |                      |                 | 
@@ -27,7 +44,7 @@ Python script for analyzing submissions to edX formularesponse problems. Goals:
 Then: 
 
 1. Place the `problem_checks_augmented.csv` in the Formularesponse_Analyzer folder.
-2. Edit "Run Stuf" portion of `FormulaResponse_Analyzer.py` as necessary. You'll probably need to specify:
+2. Edit "Run Stuff" portion of `FormulaResponse_Analyzer.py` as necessary. You'll probably need to specify:
     * `problem_checks_augmented_filename`
     * `problem_id_front` 
 
