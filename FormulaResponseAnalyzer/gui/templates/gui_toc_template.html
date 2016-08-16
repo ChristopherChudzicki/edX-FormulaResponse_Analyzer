@@ -1,0 +1,40 @@
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="resources/tablesorter_blue/tablesorter_blue.css"/>
+		<link rel="stylesheet" type="text/css" href="resources/gui_toc.css"/>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+		<script type="text/javascript" src="resources/tablesorter.js"></script>
+	</head>
+	<body>
+		<div class="intro">
+			<p>For each symbolic ("formularesponse") problem in the course, submissions are grouped by numerical smapling (i.e., roughly by mathematical equivalence.)</p>
+		
+			<ul>
+				<li>
+					<p>Groups, Effective Number: Effective number of mathematically inequivalent wrong answers.</p>
+				</li>
+			</ul>
+			
+		<p>
+			<em>TIP!</em> Sort multiple columns simultaneously by holding down the shift key and clicking a second, third, or fourth column header.
+		</p>
+		</div>
+		
+        <!-- I don't think this filter button is working properly -->
+        <!-- <p><button id="filter">Toggle rows</button> with fewer than <input type="number" id="filter-value" /> submissions. </p> -->
+		
+		<table id="indexTable" class="tablesorter">
+        </table>
+        <script type="text/javascript">
+        $("#indexTable").tablesorter();
+        $('button').on('click', function () {
+            var filterValue = $('#filter-value').val()
+            var matchedRows = $('#indexTable tbody tr').filter(function () {
+                return $(this).find('td').eq(2).text() > filterValue
+            })
+            console.log(matchedRows)
+            matchedRows.toggle();
+            });
+        </script>
+	</body>
+</html>
